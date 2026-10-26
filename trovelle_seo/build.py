@@ -9,6 +9,7 @@ from pathlib import Path
 from . import __version__
 from . import textnorm as tn
 from .audit import run_audit
+from .plan import load_seasons, season_cards, suggest, summarise_plan, track
 from .scoring import (OBSERVED_OK, build_rows, load_keywords, load_metrics, observed_phrases, summarise)
 
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -96,12 +97,16 @@ def assemble(root: Path, now: datetime | None = None, write_history: bool = True
     aeo = _attach(_read_csv(root / "data" / "seed" / "aeo_questions.csv"), idx)
     plan = _attach(_read_csv(root / "data" / "seed" / "content_plan.csv"), idx)
     today = now.date()
-    for p in plan:
-        try:
-            due = datetime.strptime(p["publish_by"], "%Y-%m-%d").date()
-            p["days_left"] = (due - today).days
-        except ValueError:
-            p["days_left"] = None
+    seasons = load_seasons(root / "data" / "seed" / "seasons.csv")
+    tro = snapshot["sites"].get("trovelle", {})
+    tro_live = prov["trovelle_source"].startswith("live")
+    kw_by_key = {tn.strict(k["keyword"]): k for k in keywords}
+    sm_urls = (tro.get("sitemap") or {}).get("other_urls", []) if tro_live else []
+    plan = track(plan, kw_by_key, tro.get("pages", []) if tro_live else [], sm_urls, seasons, today, tro_live)
+    plan_summary = summarise_plan(plan)
+    plan_summary["detection"] = "crawl of trovelle.in" if tro_live else "off (no live crawl of trovelle.in yet)"
+    upcoming = season_cards(seasons, plan, today)
+    suggested = suggest(rows, plan)
 
     live_sites = [k for k, m in sites_meta.items() if m["status"] in OBSERVED_OK and k != "trovelle"
                   and snapshot["sites"].get(k, {}).get("fetched_at", "") and
@@ -115,6 +120,8 @@ def assemble(root: Path, now: datetime | None = None, write_history: bool = True
         "validated_gaps": summary["validated_gaps"], "quick_wins": summary["quick_wins"],
         "n_keywords": summary["n_keywords"], "audit": audit["counts"],
         "trovelle_source": prov["trovelle_source"], "live_competitors": len(live_sites),
+        "plan": {"live": plan_summary["counts"]["live"], "overdue": plan_summary["counts"]["overdue"],
+                 "open": plan_summary["open"], "total": plan_summary["total"]},
         "site_coverage": {s["key"]: s["coverage"] for s in summary["site_coverage"]},
     }
     history_path = root / "data" / "live" / "history.jsonl"
@@ -131,7 +138,8 @@ def assemble(root: Path, now: datetime | None = None, write_history: bool = True
             "has_live": bool(live), "metrics_rows": len(metrics),
         },
         "summary": summary, "sites": list(sites_meta.values()), "keywords": rows, "clusters": clusters,
-        "phrases": phrases, "audit": audit, "aeo": aeo, "plan": plan, "history": history,
+        "phrases": phrases, "audit": audit, "aeo": aeo, "plan": plan, "plan_summary": plan_summary,
+        "seasons": upcoming, "suggested": suggested, "history": history,
     }
     return data
 

@@ -166,7 +166,8 @@ def _sitemap_stats(sm: dict, platform: str, rx: dict) -> dict:
             counts["collections"] += 1
         elif k == "post":
             counts["blog_urls"].append(u)
-    return {"url": sm.get("url"), "ok": sm.get("ok", False), "products": counts["products"],
+    other = [u for u in sm.get("urls", []) if "/products/" not in u][:800]
+    return {"url": sm.get("url"), "ok": sm.get("ok", False), "other_urls": other, "products": counts["products"],
             "collections": counts["collections"], "blog_posts": len(counts["blog_urls"]),
             "blog_urls": counts["blog_urls"][:30]}
 
