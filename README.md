@@ -11,7 +11,7 @@ It rebuilds itself every morning (08:00 IST) with GitHub Actions and is hosted o
 | Overview | How much of the keyword set each site targets, a keyword-group heatmap, top opportunities, trend over time |
 | Competitor keywords | Phrases competitors actually put in titles, headings, meta and menus (mined live), plus crawl status per site |
 | Opportunities | 90 tracked keywords with an opportunity score, which competitors use each, where to use it, filter/sort/CSV export |
-| Content plan | 22 posts and pages with publish-by dates (Diwali-sensitive ones first) and an AEO structure for each |
+| Content plan | 22 posts and pages that update themselves: days left and overdue flags, festival countdowns, "Live" detected from trovelle.in after each crawl, and suggestions for the biggest gaps not yet in the plan |
 | AEO answers | 22 answer-first drafts for FAQ and blog use, with the schema type and what to verify before publishing |
 | Site audit | Computed checks on trovelle.in: titles, meta, H1, "cord-sets" typo, leftover "Sverve" copy, schema, blog depth |
 
@@ -62,7 +62,9 @@ To replace estimates with real numbers, export from Semrush, Ahrefs, Keyword Pla
 
 - `config/competitors.json` — which sites to crawl. Each site lists a few pinned pages (the homepage at least). The crawler then finds category pages from the site menu and sitemap, blog posts from the blog index and sitemap, and product pages from the category pages. Change how many in `config/settings.json` under `crawl.discover` (`categories`, `posts`, `products`), or per site with `discover.limits`. For a site whose product links are not recognised, add `discover.product_regex` (also `category_regex`, `post_regex`, `sitemap`, `platform`). Add a competitor by copying an entry; `seeded: false` means it has no hand-set scores and fills in after its first crawl. Check IKKIVI's domain: it was not re-verified.
 - `data/seed/keywords.csv` — the tracked keywords. `match` (optional) lists exact phrases separated by `|` to avoid loose matching; the `trovelle` and competitor columns are 0/1/2 (none / weak / strong).
-- `data/seed/aeo_questions.csv`, `data/seed/content_plan.csv` — the AEO drafts and the content calendar.
+- `data/seed/aeo_questions.csv` — the AEO drafts.
+- `data/seed/content_plan.csv` — the content calendar. Columns `status` (`published`, `in progress` or `skipped`) and `url` are yours to fill in and always win over automatic detection. `season` links a post to a festival in `seasons.csv`; when the festival has passed, an unpublished post moves to "Season over" instead of "Overdue".
+- `data/seed/seasons.csv` — festival and season dates (Diwali, Christmas, New Year's Eve and Valentine's Day are confirmed; wedding season is approximate). Add Holi, Eid, Raksha Bandhan or anything else you plan around.
 - `config/settings.json` — crawl politeness, scoring weights, audit thresholds. The crawler's User-Agent is set from your repo URL in CI (`TROVELLE_SEO_UA`); edit `crawl.user_agent` for local runs.
 
 ## Crawling etiquette
