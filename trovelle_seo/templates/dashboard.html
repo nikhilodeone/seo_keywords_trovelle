@@ -427,14 +427,51 @@ $('#exportCsv').onclick=()=>{
 };
 
 /* ---------- PLAN ---------- */
+const PST={live:['✓','Live','pass'],partial:['◐','Partly live','warn'],in_progress:['…','In progress','unknown'],planned:['○','Planned','unknown'],due_soon:['⏱','Due soon','warn'],overdue:['✕','Overdue','fail'],expired:['–','Season over','unknown'],skipped:['–','Skipped','unknown']};
+const planState=it=>{const [i,l,c]=PST[it.state];return `<span class="st ${c}"><span class="ic" aria-hidden="true">${i}</span>${l}</span>`;};
 function plan(){
-  const P=D.plan.slice().sort((a,b)=>a.priority.localeCompare(b.priority)||a.publish_by.localeCompare(b.publish_by));
-  const labels={P0:'P0: publish this week or next (time-sensitive)',P1:'P1: next 2–4 weeks',P2:'P2: build out the library'};
-  let h=`<div class="note">Diwali is in early November, so the P0 pieces are only useful if they are live in days, not weeks. Competitors such as Aza already have Diwali guides indexed.</div>`;
-  ['P0','P1','P2'].forEach(p=>{const items=P.filter(x=>x.priority===p);if(!items.length)return;
-    h+=`<div class="group-h">${labels[p]||p}</div><div class="tbl-wrap"><table><thead><tr><th>Publish by</th><th>Working title</th><th>Target keyword</th><th>Trovélle today</th><th>Format</th><th>Structure for AEO</th></tr></thead><tbody>${items.map(x=>{
-      const dl=x.days_left; const when=dl==null?'':dl<0?`<div style="color:var(--crit)">✕ ${-dl} days overdue</div>`:dl<=14?`<div>⏱ in ${dl} day${dl===1?'':'s'}</div>`:`<div style="color:var(--ink-3)">in ${dl} days</div>`;
-      return `<tr><td style="white-space:nowrap"><b>${fmtDate(x.publish_by)}</b>${when}</td><td><b>${esc(x.title)}</b><div style="color:var(--ink-3);font-size:12.5px">${esc(x.why)}</div></td><td>${esc(x.keyword)}</td><td>${x.kw?kwStatus(x.kw.status)+`<div style="color:var(--ink-3);font-size:12.5px">${x.kw.comp_users} competitors use it</div>`:'<span class="st unknown"><span class="ic">?</span>Not tracked</span>'}</td><td>${esc(x.format)}</td><td style="max-width:360px">${esc(x.aeo_structure)}</td></tr>`;}).join('')}</tbody></table></div>`;});
+  const P=D.plan.slice().sort((a,b)=>a.publish_by.localeCompare(b.publish_by)||a.priority.localeCompare(b.priority));
+  const PS=D.plan_summary, C=PS.counts;
+  const tile=(label,num,desc)=>`<div class="card kpi"><div class="label">${label}</div><div class="num">${num}</div><div class="desc">${desc}</div></div>`;
+  const tiles=`<div class="grid kpis">${tile('Live',`${C.live} of ${PS.total}`,`Detection: ${esc(PS.detection)}.`)}${tile('Due in 14 days',C.due_soon,'Not live yet and due soon.')}${tile('Overdue',C.overdue,'Past the publish-by date and not live.')}${tile('Season over',C.expired,'Festival has passed. Keep for next year.')}</div>`;
+  const when=it=>{const dl=it.days_left;if(dl==null)return '';return dl<0?`<div style="color:var(--ink-2)">${-dl} day${dl===-1?'':'s'} ago</div>`:dl===0?'<div>today</div>':`<div style="color:var(--ink-3)">in ${dl} day${dl===1?'':'s'}</div>`;};
+  const row=it=>`<tr><td style="white-space:nowrap"><b>${fmtDate(it.publish_by)}</b>${it.state==='live'||it.state==='expired'||it.state==='skipped'?'':when(it)}</td>
+    <td><b>${esc(it.title)}</b><div style="color:var(--ink-3);font-size:12.5px">${esc(it.why)}</div>${it.season_name?`<div style="margin-top:3px"><span class="pill">${esc(it.season_name)}</span></div>`:''}</td>
+    <td>${esc(it.keyword)}</td>
+    <td>${planState(it)}${it.live_url&&(it.state==='live'||it.state==='partial')?`<div style="font-size:12.5px"><a href="${esc(it.live_url)}" target="_blank" rel="noopener">open page ↗</a>${it.detected_by?` <span style="color:var(--ink-3)">· found by ${esc(it.detected_by)}</span>`:''}</div>`:''}</td>
+    <td>${it.kw?kwStatus(it.kw.status)+`<div style="color:var(--ink-3);font-size:12.5px">${it.kw.comp_users} competitors use it</div>`:'<span class="st unknown"><span class="ic">?</span>Not tracked</span>'}</td>
+    <td>${esc(it.format)}</td><td style="max-width:340px">${esc(it.aeo_structure)}</td></tr>`;
+  const table=items=>`<div class="tbl-wrap"><table><thead><tr><th>Publish by</th><th>Working title</th><th>Target keyword</th><th>Status</th><th>Trovélle keyword</th><th>Format</th><th>Structure for AEO</th></tr></thead><tbody>${items.map(row).join('')}</tbody></table></div>`;
+  const grp=(states)=>P.filter(it=>states.includes(it.state));
+
+  /* coming up */
+  const S=D.seasons||[];
+  const cards=S.length?`<div class="grid cards" style="margin-bottom:6px">${S.map(x=>{
+    const late=x.days_to_publish<0;
+    return `<div class="card site"><h3>${esc(x.name)}</h3><div class="meta">${x.is_range?`${fmtDate(x.date)} to ${fmtDate(x.ends)}`:fmtDate(x.date)}${x.verified==='approx'?' (approximate)':''} · ${x.in_season?'in season now':`${x.is_range?'starts':''} in ${x.days_until} days`}</div>
+    <div>${x.is_range?`<span class="st ${x.in_season||late?'warn':'pass'}"><span class="ic" aria-hidden="true">${x.in_season||late?'⏱':'✓'}</span>${x.in_season||late?'Publish as early as you can; the season is on':'Publish by '+fmtDate(x.publish_by)}</span>`:late?`<span class="st fail"><span class="ic" aria-hidden="true">✕</span>Publish-by date passed ${-x.days_to_publish} days ago</span>`:`<span class="st ${x.days_to_publish<=7?'warn':'pass'}"><span class="ic" aria-hidden="true">${x.days_to_publish<=7?'⏱':'✓'}</span>Publish by ${fmtDate(x.publish_by)} (${x.days_to_publish} days)</span>`}</div>
+    <div class="meta" style="margin-top:6px">${x.items?`${x.open_items} of ${x.items} planned posts still to do`:'No posts planned yet'}</div>${x.note?`<div class="meta">${esc(x.note)}</div>`:''}</div>`;}).join('')}</div>`:'<div class="empty">No upcoming dates in data/seed/seasons.csv.</div>';
+
+  let h=tiles+`<div class="group-h">Coming up</div>${cards}`;
+  const od=grp(['overdue']), ds=grp(['due_soon']), ip=grp(['in_progress','partial']), pl=grp(['planned']);
+  if(od.length)h+=`<div class="group-h">Overdue (${od.length})</div>${table(od)}`;
+  if(ds.length)h+=`<div class="group-h">Due in the next 14 days (${ds.length})</div>${table(ds)}`;
+  if(ip.length)h+=`<div class="group-h">In progress or partly live (${ip.length})</div>${table(ip)}`;
+  if(pl.length)h+=`<div class="group-h">Later (${pl.length})</div>${table(pl)}`;
+  if(!od.length&&!ds.length&&!ip.length&&!pl.length)h+=`<div class="empty">Nothing left to do in the plan. See the suggestions below.</div>`;
+  const done=grp(['live']), old=grp(['expired','skipped']);
+  if(done.length)h+=`<details style="margin-top:16px"><summary class="group-h" style="cursor:pointer">Live (${done.length})</summary>${table(done)}</details>`;
+  if(old.length)h+=`<details style="margin-top:8px"><summary class="group-h" style="cursor:pointer">Season over or skipped (${old.length})</summary>${table(old)}</details>`;
+
+  /* suggestions */
+  const SG=D.suggested||[];
+  h+=`<div class="group-h">Suggested next: the biggest gaps not in the plan</div>`+(SG.length?`<div class="tbl-wrap"><table><thead><tr><th>Keyword</th><th class="num">Score</th><th>Trovélle</th><th>Do this</th><th>Where</th></tr></thead><tbody>${SG.map(x=>`<tr><td><b>${esc(x.keyword)}</b><div style="color:var(--ink-3);font-size:12.5px">${esc(x.cluster)} · ${x.comp_users} competitor${x.comp_users===1?'':'s'} use it</div></td><td class="num"><b>${x.score}</b></td><td>${kwStatus(x.status)}</td><td>${esc(x.action_type)}</td><td>${esc(x.where)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Every high-scoring gap is already in the plan.</div>');
+  h+=`<div class="card prose" style="margin-top:16px"><h2>How this page updates itself</h2><ul>
+    <li><b>Dates:</b> days left, “due soon” and “overdue” are recalculated on every rebuild.</li>
+    <li><b>Festivals:</b> posts tied to a festival move to “Season over” the day after it, so they stop showing as overdue. The dates are in <code>data/seed/seasons.csv</code>.</li>
+    <li><b>Published pages:</b> after each crawl of trovelle.in, a post becomes “Live” when a blog post, collection or page has its keyword in the title, meta or H1 (or in its web address). Menu labels do not count.</li>
+    <li><b>Your say wins:</b> in <code>data/seed/content_plan.csv</code> set <code>status</code> to <code>published</code>, <code>in progress</code> or <code>skipped</code>, and optionally add the page in <code>url</code>.</li>
+    <li><b>Suggestions:</b> the list at the bottom is the highest-scoring gaps that are not in the plan. It changes as competitors and Trovélle change.</li></ul></div>`;
   return h;
 }
 
