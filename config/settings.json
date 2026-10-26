@@ -6,7 +6,7 @@
     "confusable_domains": ["trovelle.com"]
   },
   "crawl": {
-    "user_agent": "TrovelleSEOBot/1.0 (+https://github.com/YOUR-ORG/trovelle-seo-dashboard; contact: YOUR-EMAIL)",
+    "user_agent": "TrovelleSEOBot/1.0 (SEO monitoring for trovelle.in; +https://trovelle.in)",
     "delay_seconds": 2.0,
     "timeout_seconds": 20,
     "max_text_chars": 12000,
