@@ -2,30 +2,52 @@
   "brand": {
     "name": "Trovélle",
     "domain": "trovelle.in",
-    "tokens": ["trovelle"],
-    "confusable_domains": ["trovelle.com"]
+    "tokens": [
+      "trovelle"
+    ],
+    "confusable_domains": [
+      "trovelle.com"
+    ]
   },
   "crawl": {
     "user_agent": "TrovelleSEOBot/1.0 (SEO monitoring for trovelle.in; +https://trovelle.in)",
     "delay_seconds": 2.0,
     "timeout_seconds": 20,
     "max_text_chars": 12000,
-    "max_pages_per_site": 25,
-    "respect_robots": true
+    "max_pages_per_site": 60,
+    "respect_robots": true,
+    "workers": 4,
+    "discover": {
+      "categories": 12,
+      "posts": 8,
+      "products": 10
+    }
   },
   "scoring": {
     "body_mentions_for_weak": 2,
     "competitor_bonus_per_site": 0.08,
     "competitor_bonus_cap_sites": 5,
-    "quick_win_min_score": 25
+    "quick_win_min_score": 25,
+    "live_overrides_seed": true,
+    "live_min_pages": 2,
+    "live_min_words": 1500
   },
   "audit": {
     "title_min_chars": 30,
     "meta_min_chars": 70,
     "meta_max_chars": 160,
     "blog_posts_min": 10,
-    "foreign_brand_terms": ["sverve"],
-    "positioning_terms": ["independent designer", "emerging designer", "indie designer", "indie label", "small label", "emerging label"],
+    "foreign_brand_terms": [
+      "sverve"
+    ],
+    "positioning_terms": [
+      "independent designer",
+      "emerging designer",
+      "indie designer",
+      "indie label",
+      "small label",
+      "emerging label"
+    ],
     "price_claim_ceiling": 20000
   }
 }

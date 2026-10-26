@@ -3,113 +3,226 @@
     "key": "trovelle",
     "name": "Trovélle",
     "pages": [
-      {"role": "home", "url": "https://trovelle.in/"},
-      {"role": "collection", "url": "https://trovelle.in/collections/cord-sets"},
-      {"role": "collection", "url": "https://trovelle.in/collections/dresses"},
-      {"role": "collection", "url": "https://trovelle.in/collections/kaftan"},
-      {"role": "collection", "url": "https://trovelle.in/collections/shirts"},
-      {"role": "collection", "url": "https://trovelle.in/collections/all-designers"},
-      {"role": "collection", "url": "https://trovelle.in/collections/festive-collection"},
-      {"role": "about", "url": "https://trovelle.in/pages/about-us"},
-      {"role": "faq", "url": "https://trovelle.in/pages/faqs"},
-      {"role": "blog", "url": "https://trovelle.in/blogs/news"},
-      {"role": "product", "url": "https://trovelle.in/collections/best-seller"}
+      {
+        "role": "home",
+        "url": "https://trovelle.in/"
+      },
+      {
+        "role": "collection",
+        "url": "https://trovelle.in/collections/cord-sets"
+      },
+      {
+        "role": "collection",
+        "url": "https://trovelle.in/collections/dresses"
+      },
+      {
+        "role": "collection",
+        "url": "https://trovelle.in/collections/kaftan"
+      },
+      {
+        "role": "collection",
+        "url": "https://trovelle.in/collections/shirts"
+      },
+      {
+        "role": "collection",
+        "url": "https://trovelle.in/collections/all-designers"
+      },
+      {
+        "role": "collection",
+        "url": "https://trovelle.in/collections/festive-collection"
+      },
+      {
+        "role": "about",
+        "url": "https://trovelle.in/pages/about-us"
+      },
+      {
+        "role": "faq",
+        "url": "https://trovelle.in/pages/faqs"
+      },
+      {
+        "role": "blog",
+        "url": "https://trovelle.in/blogs/news"
+      },
+      {
+        "role": "collection",
+        "url": "https://trovelle.in/collections/best-seller"
+      }
     ],
-    "follow": {"include": "^https://trovelle\\.in/products/", "max": 3},
     "sitemap": "https://trovelle.in/sitemap.xml"
   },
   "competitors": [
     {
-      "key": "aza", "name": "Aza Fashions", "tier": "Multi-designer",
+      "key": "aza",
+      "name": "Aza Fashions",
+      "tier": "Multi-designer",
       "seeded": true,
       "pages": [
-        {"url": "https://www.azafashions.com/"},
-        {"url": "https://www.azafashions.com/on-sale"},
-        {"url": "https://www.azafashions.com/blog/"},
-        {"url": "https://www.azafashions.com/blog/best-multi-designer-store-indian-wedding-outfits/"},
-        {"url": "https://www.azafashions.com/blog/where-to-buy-designer-lehengas-online-in-india/"},
-        {"url": "https://www.azafashions.com/blog/festive-outfits-under-30k/"}
-      ],
-      "follow": {"include": "^https://www\\.azafashions\\.com/blog/[a-z0-9-]+/$", "max": 12}
-    },
-    {
-      "key": "pernia", "name": "Pernia's Pop-Up Shop", "tier": "Multi-designer",
-      "seeded": true,
-      "pages": [
-        {"url": "https://www.perniaspopupshop.com/"},
-        {"url": "https://www.perniaspopupshop.com/clothing"},
-        {"url": "https://www.perniaspopupshop.com/whats-new/contemporary/co-ord-sets"},
-        {"url": "https://www.perniaspopupshop.com/co-ord-sets-under-20000-for-date-night-online"}
+        {
+          "url": "https://www.azafashions.com/"
+        },
+        {
+          "url": "https://www.azafashions.com/on-sale"
+        },
+        {
+          "url": "https://www.azafashions.com/blog/"
+        },
+        {
+          "url": "https://www.azafashions.com/blog/best-multi-designer-store-indian-wedding-outfits/"
+        },
+        {
+          "url": "https://www.azafashions.com/blog/where-to-buy-designer-lehengas-online-in-india/"
+        },
+        {
+          "url": "https://www.azafashions.com/blog/festive-outfits-under-30k/"
+        }
       ]
     },
     {
-      "key": "nykaa", "name": "Nykaa Fashion", "tier": "Marketplace",
+      "key": "pernia",
+      "name": "Pernia's Pop-Up Shop",
+      "tier": "Multi-designer",
       "seeded": true,
       "pages": [
-        {"url": "https://www.nykaafashion.com/"},
-        {"url": "https://www.nykaafashion.com/dp/kalki-fashion-sarees"}
+        {
+          "url": "https://www.perniaspopupshop.com/"
+        },
+        {
+          "url": "https://www.perniaspopupshop.com/clothing"
+        },
+        {
+          "url": "https://www.perniaspopupshop.com/whats-new/contemporary/co-ord-sets"
+        },
+        {
+          "url": "https://www.perniaspopupshop.com/co-ord-sets-under-20000-for-date-night-online"
+        }
+      ]
+    },
+    {
+      "key": "nykaa",
+      "name": "Nykaa Fashion",
+      "tier": "Marketplace",
+      "seeded": true,
+      "pages": [
+        {
+          "url": "https://www.nykaafashion.com/"
+        },
+        {
+          "url": "https://www.nykaafashion.com/dp/kalki-fashion-sarees"
+        }
       ],
       "note": "Often blocks automated requests. If it does, the seed scores stay in place."
     },
     {
-      "key": "fabilicious", "name": "Fabilicious", "tier": "Indo-western / co-ords",
+      "key": "fabilicious",
+      "name": "Fabilicious",
+      "tier": "Indo-western / co-ords",
       "seeded": true,
       "pages": [
-        {"url": "https://www.fabiliciousfashion.com/"},
-        {"url": "https://www.fabiliciousfashion.com/blogs/news/indo-western-co-ord-sets-cape-outfits-for-a-glam-cocktail-night"},
-        {"url": "https://www.fabiliciousfashion.com/blogs/news/modern-meets-ethnic-new-indo-western-outfits-for-2025-celebrations"}
+        {
+          "url": "https://www.fabiliciousfashion.com/"
+        },
+        {
+          "url": "https://www.fabiliciousfashion.com/blogs/news/indo-western-co-ord-sets-cape-outfits-for-a-glam-cocktail-night"
+        },
+        {
+          "url": "https://www.fabiliciousfashion.com/blogs/news/modern-meets-ethnic-new-indo-western-outfits-for-2025-celebrations"
+        }
       ]
     },
     {
-      "key": "inching", "name": "Inching India", "tier": "Indo-western / co-ords",
+      "key": "inching",
+      "name": "Inching India",
+      "tier": "Indo-western / co-ords",
       "seeded": true,
       "pages": [
-        {"url": "https://inchingindia.in/"},
-        {"url": "https://inchingindia.in/blogs/blog/diwali-outfit-ideas-2026-ultimate-ethnic-wear-guide"},
-        {"url": "https://inchingindia.in/blogs/blog/how-to-rock-indo-western-outfits-this-diwali"}
+        {
+          "url": "https://inchingindia.in/"
+        },
+        {
+          "url": "https://inchingindia.in/blogs/blog/diwali-outfit-ideas-2026-ultimate-ethnic-wear-guide"
+        },
+        {
+          "url": "https://inchingindia.in/blogs/blog/how-to-rock-indo-western-outfits-this-diwali"
+        }
       ]
     },
     {
-      "key": "truebrowns", "name": "trueBrowns", "tier": "Price-led festive",
+      "key": "truebrowns",
+      "name": "trueBrowns",
+      "tier": "Price-led festive",
       "seeded": true,
       "pages": [
-        {"url": "https://www.truebrowns.com/"},
-        {"url": "https://www.truebrowns.com/blogs/tbcorner/festive-outfits-under-rs-5000-for-a-budget-friendly-diwali"}
+        {
+          "url": "https://www.truebrowns.com/"
+        },
+        {
+          "url": "https://www.truebrowns.com/blogs/tbcorner/festive-outfits-under-rs-5000-for-a-budget-friendly-diwali"
+        }
       ]
     },
     {
-      "key": "ikkivi", "name": "IKKIVI", "tier": "Independent designers",
+      "key": "ikkivi",
+      "name": "IKKIVI",
+      "tier": "Independent designers",
       "seeded": true,
       "pages": [
-        {"url": "https://ikkivi.com/"}
+        {
+          "url": "https://ikkivi.com/"
+        }
       ],
       "note": "Domain not re-verified in research; correct it here if the crawl returns an error."
     },
     {
-      "key": "itokri", "name": "iTokri", "tier": "Handcrafted / artisans",
+      "key": "itokri",
+      "name": "iTokri",
+      "tier": "Handcrafted / artisans",
       "seeded": true,
       "pages": [
-        {"url": "https://itokri.com/"},
-        {"url": "https://itokri.com/pages/about"},
-        {"url": "https://itokri.com/collections/bindaas-print-shoulder-bags"}
+        {
+          "url": "https://itokri.com/"
+        },
+        {
+          "url": "https://itokri.com/pages/about"
+        },
+        {
+          "url": "https://itokri.com/collections/bindaas-print-shoulder-bags"
+        }
       ]
     },
     {
-      "key": "ogaan", "name": "Ogaan", "tier": "Multi-designer",
+      "key": "ogaan",
+      "name": "Ogaan",
+      "tier": "Multi-designer",
       "seeded": false,
-      "pages": [{"url": "https://www.ogaan.com/"}],
+      "pages": [
+        {
+          "url": "https://www.ogaan.com/"
+        }
+      ],
       "note": "Added from Ahrefs competitor list; no seed scores. Fills in after the first successful crawl."
     },
     {
-      "key": "kalki", "name": "Kalki Fashion", "tier": "Ethnic / bridal",
+      "key": "kalki",
+      "name": "Kalki Fashion",
+      "tier": "Ethnic / bridal",
       "seeded": false,
-      "pages": [{"url": "https://kalkifashion.com/"}],
+      "pages": [
+        {
+          "url": "https://kalkifashion.com/"
+        }
+      ],
       "note": "No seed scores. Fills in after the first successful crawl."
     },
     {
-      "key": "aashni", "name": "Aashni + Co", "tier": "Multi-designer",
+      "key": "aashni",
+      "name": "Aashni + Co",
+      "tier": "Multi-designer",
       "seeded": false,
-      "pages": [{"url": "https://www.aashniandco.com/"}],
+      "pages": [
+        {
+          "url": "https://www.aashniandco.com/"
+        }
+      ],
       "note": "No seed scores. Fills in after the first successful crawl."
     }
   ]
