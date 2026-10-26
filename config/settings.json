@@ -1,0 +1,31 @@
+{
+  "brand": {
+    "name": "Trovélle",
+    "domain": "trovelle.in",
+    "tokens": ["trovelle"],
+    "confusable_domains": ["trovelle.com"]
+  },
+  "crawl": {
+    "user_agent": "TrovelleSEOBot/1.0 (+https://github.com/YOUR-ORG/trovelle-seo-dashboard; contact: YOUR-EMAIL)",
+    "delay_seconds": 2.0,
+    "timeout_seconds": 20,
+    "max_text_chars": 12000,
+    "max_pages_per_site": 25,
+    "respect_robots": true
+  },
+  "scoring": {
+    "body_mentions_for_weak": 2,
+    "competitor_bonus_per_site": 0.08,
+    "competitor_bonus_cap_sites": 5,
+    "quick_win_min_score": 25
+  },
+  "audit": {
+    "title_min_chars": 30,
+    "meta_min_chars": 70,
+    "meta_max_chars": 160,
+    "blog_posts_min": 10,
+    "foreign_brand_terms": ["sverve"],
+    "positioning_terms": ["independent designer", "emerging designer", "indie designer", "indie label", "small label", "emerging label"],
+    "price_claim_ceiling": 20000
+  }
+}
