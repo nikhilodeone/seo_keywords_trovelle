@@ -130,6 +130,13 @@ def observe_site(pages: list[dict], matchers: list[KeywordMatcher], body_thresho
 
 
 # --------------------------------------------------------------------------- merge + score
+def _count_roles(pages: list[dict]) -> dict:
+    out: dict[str, int] = {}
+    for p in pages:
+        out[p.get("role", "page")] = out.get(p.get("role", "page"), 0) + 1
+    return out
+
+
 def build_rows(keywords: list[dict], snapshot: dict, comp_cfg: dict, settings: dict,
                metrics: dict[str, dict]) -> tuple[list[dict], dict]:
     sc = settings["scoring"]
@@ -150,9 +157,17 @@ def build_rows(keywords: list[dict], snapshot: dict, comp_cfg: dict, settings: d
             "key": s["key"], "name": s["name"], "tier": s.get("tier", ""), "self": s["self"],
             "seeded": bool(s.get("seeded")), "status": status, "pages": len(pages),
             "words": sum(int(p.get("word_count", 0) or 0) for p in pages),
+            "roles": snap.get("discovery", {}).get("roles") or _count_roles(pages),
+            "notes": snap.get("discovery", {}).get("notes", []),
             "fetched_at": snap.get("fetched_at", ""), "note": s.get("note", ""),
             "errors": snap.get("errors", [])[:5],
         }
+        words = sum(int(p.get("word_count", 0) or 0) for p in pages)
+        # A competitor that was read properly is scored from the crawl alone; estimates only fill in
+        # for sites that were blocked, not crawled, or returned too little text to judge.
+        sites_meta[s["key"]]["measured_only"] = bool(
+            usable and not s["self"] and sc.get("live_overrides_seed", True)
+            and len(pages) >= sc.get("live_min_pages", 2) and words >= sc.get("live_min_words", 1500))
         if usable:
             observed[s["key"]] = observe_site(pages, matchers, body_threshold)
     comp_keys = [c["key"] for c in comp_cfg["competitors"]]
@@ -169,8 +184,11 @@ def build_rows(keywords: list[dict], snapshot: dict, comp_cfg: dict, settings: d
             seed = int(r.get(k) or 0) if meta["seeded"] else None
             o = observed.get(k, [None] * len(keywords))[i]
             if o is not None:
-                val = max(o[0], seed or 0)
-                src = "crawl" if o[0] >= (seed or 0) else "seed"
+                if meta["measured_only"]:
+                    val, src = o[0], "crawl"
+                else:
+                    val = max(o[0], seed or 0)
+                    src = "crawl" if o[0] >= (seed or 0) else "seed"
                 comp[k] = {"score": val, "src": src, "where": o[1], "url": o[2]}
             elif seed is not None:
                 comp[k] = {"score": seed, "src": "seed", "where": "", "url": ""}
@@ -307,8 +325,8 @@ def observed_phrases(snapshot: dict, comp_cfg: dict, top_n: int = 60) -> list[di
             continue
         counts: dict[str, int] = {}
         for pg in s.get("pages", []):
-            if pg.get("status") != 200:
-                continue
+            if pg.get("status") != 200 or pg.get("role") == "product":
+                continue            # product names are brand-specific noise for phrase mining
             for seg in _segments(pg):
                 for g in grams(seg):
                     counts[g] = counts.get(g, 0) + 1

@@ -30,7 +30,9 @@ class _Parser(HTMLParser):
         self._title_buf: list[str] = []
         self._cur_a_href: str | None = None
         self._cur_a_buf: list[str] = []
-        self._nav_depth = 0
+        self._nav_name: str | None = None     # tag that opened the current nav region
+        self._nav_count = 0
+        self.nav_hrefs: list[str] = []
         self._in_jsonld = False
         self._jsonld_buf: list[str] = []
         self._skip_depth = 0
@@ -38,6 +40,11 @@ class _Parser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         a = {k: (v or "") for k, v in attrs}
         self._stack.append(tag)
+        if self._nav_name is None:
+            if tag == "nav" or a.get("role") == "navigation":
+                self._nav_name, self._nav_count = tag, 1
+        elif tag == self._nav_name:
+            self._nav_count += 1
         if tag == "html":
             self.lang = a.get("lang", "")
         elif tag == "title":
@@ -61,8 +68,6 @@ class _Parser(HTMLParser):
         elif tag in HEADING_TAGS:
             self._cur_heading = tag
             self._cur_heading_buf = []
-        elif tag == "nav" or a.get("role") == "navigation":
-            self._nav_depth += 1
         elif tag == "a":
             self._cur_a_href = urljoin(self.base_url, a.get("href", ""))
             self._cur_a_buf = []
@@ -85,16 +90,19 @@ class _Parser(HTMLParser):
             if txt:
                 self.headings[tag].append(txt)
             self._cur_heading = None
-        elif tag == "nav":
-            if self._nav_depth:
-                self._nav_depth -= 1
         elif tag == "a" and self._cur_a_href is not None:
             txt = _clean(" ".join(self._cur_a_buf))
             if txt:
                 self.anchors.append((self._cur_a_href, txt))
-                if self._nav_depth and len(txt.split()) <= 6:
-                    self.nav_anchor_texts.append(txt)
+                if self._nav_name is not None:
+                    self.nav_hrefs.append(self._cur_a_href)
+                    if len(txt.split()) <= 6:
+                        self.nav_anchor_texts.append(txt)
             self._cur_a_href = None
+        if self._nav_name is not None and tag == self._nav_name:
+            self._nav_count -= 1
+            if self._nav_count <= 0:
+                self._nav_name = None
         if self._stack:
             self._stack.pop()
 
@@ -190,5 +198,6 @@ def extract_page(html: str, url: str, max_text_chars: int = 12000) -> dict:
         "faq_questions": faq[:40],
         "word_count": len(text.split()),
         "text": text[:max_text_chars],
-        "links": [h for h, _ in p.anchors][:400],
+        "links": [h for h, _ in p.anchors][:600],
+        "nav_links": list(dict.fromkeys(p.nav_hrefs))[:400],
     }
