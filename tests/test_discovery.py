@@ -123,6 +123,14 @@ class Classify(unittest.TestCase):
         self.assertEqual(c("https://x.in/whats-new/co-ord-sets"), "category")
         self.assertEqual(c("https://x.in/ivory-embroidered-co-ord-set-shpsa1234.html"), "product")
         self.assertEqual(c("https://x.in/co-ord-sets-under-20000-for-date-night-online"), "category")
+        # Aza Fashions' real address patterns
+        aza = "https://www.azafashions.com"
+        self.assertEqual(c(aza + "/collection/women/lehengas"), "category")
+        self.assertEqual(c(aza + "/collection/women/lehengas/bridal-lehengas"), "category")
+        self.assertEqual(c(aza + "/aza-curates/the-salwar-edit/3912"), "category")
+        self.assertEqual(c(aza + "/products/ridhi-mehra-printed-lehenga-set/763770"), "product")
+        self.assertEqual(c(aza + "/search?q=corset%20lehenga"), None)
+        self.assertEqual(c(aza + "/blog"), "blog-index")
 
     def test_helpers(self):
         self.assertEqual(_evenly(list(range(10)), 3), [0, 3, 6])
