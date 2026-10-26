@@ -1,23 +1,24 @@
 name: Refresh dashboard
 
+# Hosting is on Vercel. This workflow crawls, saves the data in the repo,
+# and asks Vercel to redeploy. (It does not use GitHub Pages.)
+
 on:
   schedule:
     - cron: "30 2 * * *"        # 08:00 IST every day
   workflow_dispatch:             # "Run workflow" button
   push:
-    branches: [main]             # rebuild from committed data after code or seed edits
+    branches: [main]             # run the tests and a test build after code edits
 
 permissions:
   contents: write                # commit data/live/*
-  pages: write
-  id-token: write
 
 concurrency:
   group: dashboard
   cancel-in-progress: false
 
 jobs:
-  build:
+  refresh:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -32,12 +33,12 @@ jobs:
 
       - name: Crawl (scheduled and manual runs only)
         if: github.event_name != 'push'
-        continue-on-error: true  # a failed crawl must not stop the dashboard deploying the last good data
+        continue-on-error: true  # a failed crawl must not stop the last good data from being used
         env:
           TROVELLE_SEO_UA: "TrovelleSEOBot/1.0 (+https://github.com/${{ github.repository }})"
         run: python -m trovelle_seo crawl
 
-      - name: Build site
+      - name: Build site (test build)
         run: python -m trovelle_seo build
 
       - name: Commit refreshed data
@@ -59,19 +60,3 @@ jobs:
           HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
           if [ -n "$HOOK" ]; then curl -fsS -X POST "$HOOK" > /dev/null && echo "Vercel redeploy triggered"; else echo "No VERCEL_DEPLOY_HOOK secret set; skipping"; fi
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
