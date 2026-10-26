@@ -32,6 +32,15 @@ It rebuilds itself every morning (08:00 IST) with GitHub Actions and publishes t
 
 After that it refreshes daily. Each refresh commits `data/live/snapshot.json` and `data/live/history.jsonl`, which is how the trend line builds up.
 
+## Hosting on Vercel instead of GitHub Pages
+
+`vercel.json` tells Vercel to run `python3 -m trovelle_seo build` and serve the `site/` folder. The page is generated at build time, so there is no `index.html` in the repo itself; without `vercel.json` Vercel returns 404.
+
+- Import the GitHub repo in Vercel (or run `vercel --prod` from this folder). No framework preset or output directory needs to be set by hand.
+- The Vercel build now **crawls and then builds** (`python -m trovelle_seo all`), so every deploy shows fresh data. A blocked competitor never fails the build; it keeps its estimates. The header chip "Competitors measured live N of 11" tells you how many were actually read.
+- To refresh daily without touching Vercel: in Vercel, **Settings → Git → Deploy Hooks**, create a hook, and save its URL as the GitHub secret `VERCEL_DEPLOY_HOOK`. The daily GitHub Action then triggers a redeploy after it crawls.
+- History (the trend line) is only kept when the GitHub Action commits `data/live/` to the repo. A Vercel-only setup shows the latest crawl but no trend.
+
 ## Run it locally
 
 ```bash
