@@ -149,6 +149,7 @@ def build_rows(keywords: list[dict], snapshot: dict, comp_cfg: dict, settings: d
         sites_meta[s["key"]] = {
             "key": s["key"], "name": s["name"], "tier": s.get("tier", ""), "self": s["self"],
             "seeded": bool(s.get("seeded")), "status": status, "pages": len(pages),
+            "words": sum(int(p.get("word_count", 0) or 0) for p in pages),
             "fetched_at": snap.get("fetched_at", ""), "note": s.get("note", ""),
             "errors": snap.get("errors", [])[:5],
         }
