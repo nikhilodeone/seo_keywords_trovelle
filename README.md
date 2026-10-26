@@ -2,7 +2,7 @@
 
 A live dashboard that shows which search keywords Trovélle's competitors use, which ones trovelle.in is missing, and what to publish (blogs, collection pages, FAQ answers) to be found in Google and quoted by AI answer engines.
 
-It rebuilds itself every morning (08:00 IST) with GitHub Actions and publishes to GitHub Pages. No server, no database, no paid API, no dependencies beyond Python 3.10+.
+It rebuilds itself every morning (08:00 IST) with GitHub Actions and is hosted on Vercel. No server, no database, no paid API, no dependencies beyond Python 3.10+.
 
 ## What you get
 
@@ -17,7 +17,7 @@ It rebuilds itself every morning (08:00 IST) with GitHub Actions and publishes t
 
 ## Put it on GitHub (about five minutes)
 
-1. Create an empty repository on GitHub (private or public; Pages on a private repo needs a paid GitHub plan).
+1. Create an empty repository on GitHub (private or public).
 2. From this folder:
    ```bash
    git init -b main
@@ -26,13 +26,12 @@ It rebuilds itself every morning (08:00 IST) with GitHub Actions and publishes t
    git remote add origin https://github.com/<you>/<repo>.git
    git push -u origin main
    ```
-3. In the repo, go to **Settings → Pages → Build and deployment → Source** and choose **GitHub Actions**.
-4. Go to **Actions → Refresh dashboard → Run workflow**. The first run crawls, builds and deploys.
-5. Your dashboard is at `https://<you>.github.io/<repo>/`.
+3. Host the dashboard on Vercel (see "Hosting on Vercel" below).
+4. Go to **Actions → Refresh dashboard → Run workflow**. The run crawls, saves the data in the repo and asks Vercel to redeploy.
 
 After that it refreshes daily. Each refresh commits `data/live/snapshot.json` and `data/live/history.jsonl`, which is how the trend line builds up.
 
-## Hosting on Vercel instead of GitHub Pages
+## Hosting on Vercel
 
 `vercel.json` tells Vercel to run `python3 -m trovelle_seo build` and serve the `site/` folder. The page is generated at build time, so there is no `index.html` in the repo itself; without `vercel.json` Vercel returns 404.
 
@@ -83,5 +82,5 @@ data/seed/      keywords, AEO questions, content plan, Trovélle baseline snapsh
 data/inputs/    optional metrics.csv
 data/live/      crawl snapshot and history (written by CI)
 tests/          unit tests, including a crawl against a local test server
-.github/        daily refresh and Pages deploy
+.github/        daily crawl, data commit and Vercel redeploy
 ```
