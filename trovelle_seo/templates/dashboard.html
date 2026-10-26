@@ -342,10 +342,12 @@ function competitors(){
   const cards=SITES.map(s=>{
     const [ic,lab]=stateIcon[s.status]||['–',s.status];
     const cls=s.status==='ok'?'ok':s.status==='partial'?'partial':s.status==='blocked'?'blocked':s.status==='error'?'error':s.status==='seed-observation'?'seed':'nc';
-    return `<div class="card site ${s.self?'me':''}"><h3>${s.self?'◆ ':''}${esc(s.name)}</h3><div class="meta">${esc(s.tier)}</div>
+    return `<div class="card site ${s.self?'me':''}"><h3>${s.self?'◆ ':''}${esc(s.name)}</h3><div class="meta">${esc(s.tier)}${s.measured_only?' · scored from the crawl only':(s.self?'':' · scored from estimates')}</div>
       <span class="st ${cls}"><span class="ic" aria-hidden="true">${ic}</span>${srcLabel(s)}</span>
       <div class="cov"><div><b>${s.coverage==null?'–':s.coverage+'%'}</b>uses</div><div><b>${s.strong==null?'–':s.strong+'%'}</b>strong</div><div><b>${s.pages}</b>pages read</div><div><b>${(s.words||0).toLocaleString('en-IN')}</b>words read</div></div>
       ${s.pages&&s.words!=null&&s.words<150*s.pages&&(s.status==='ok'||s.status==='partial')?`<div class="meta">▲ Very little text came back. This site probably builds its pages with JavaScript, so the crawler sees little of it.</div>`:''}
+      ${s.roles&&Object.keys(s.roles).length&&s.status!=='seed-observation'?`<div class="meta" style="margin-top:8px">Read: ${[['home','homepage'],['collection','categories'],['blog','blog index'],['post','posts'],['product','products'],['page','other'],['about','about'],['faq','FAQ'],['followed','other']].filter(([k])=>s.roles[k]).map(([k,l])=>s.roles[k]+' '+l).join(', ')}</div>`:''}
+      ${(s.notes||[]).map(n=>`<div class="meta">▲ ${esc(n)}</div>`).join('')}
       ${s.fetched_at&&s.status!=='seed-observation'?`<div class="meta" style="margin-top:8px">Fetched ${fmtDT(s.fetched_at)}</div>`:''}
       ${s.note?`<div class="meta">${esc(s.note)}</div>`:''}
       ${s.errors&&s.errors.length?`<details><summary>${s.errors.length} fetch issue${s.errors.length>1?'s':''}</summary><ul>${s.errors.map(e=>`<li>${esc(e)}</li>`).join('')}</ul></details>`:''}</div>`;}).join('');
@@ -368,7 +370,7 @@ function oppRows(){
 function detail(r){
   const who=COMPS.map(s=>{const c=r.comp[s.key];if(c.score==null)return '';const lab=c.score===2?'strong':c.score===1?'weak':'not used';
     const link=c.url&&c.score?` <a href="${esc(c.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(s.name)} page">↗</a>`:'';
-    return `<span class="pill ${c.score===2?'hi':''}">${esc(short(s))}: ${lab}${c.where?' ('+esc(c.where)+')':''}${c.score?(c.src==='crawl'?' · measured':((s.status==='ok'||s.status==='partial')?' · estimate, not found on crawled pages':' · estimate, site not measured')):''}${link}</span>`;}).join('');
+    return `<span class="pill ${c.score===2?'hi':''}">${esc(short(s))}: ${lab}${c.where?' ('+esc(c.where)+')':''}${c.src==='crawl'?' · measured':(c.score?((s.status==='ok'||s.status==='partial')?' · estimate, not found on crawled pages':' · estimate, site not measured'):'')}${link}</span>`;}).join('');
   const t=r.trovelle_obs&&r.trovelle_obs.where?`Found in ${esc(r.trovelle_obs.where)} on ${esc(r.trovelle_obs.url)}`:(r.status==='gap'?'Not found on crawled pages':'Seed estimate');
   return `<tr class="detail"><td colspan="8"><dl>
     <dt>Where to use it</dt><dd>${esc(r.where)}</dd>
@@ -379,7 +381,7 @@ function detail(r){
 }
 function liveBanner(){
   const off=COMPS.filter(s=>!(s.status==='ok'||s.status==='partial'));
-  return `<div class="note" style="margin-top:0"><b>${M.live_competitors} of ${M.total_competitors} competitors measured live.</b> In the detail rows, “measured” means the phrase was found on that site's crawled pages; “estimate” means the hand-reviewed value is used instead.${off.length?' Not measured: '+off.map(s=>esc(short(s))+' ('+esc(srcLabel(s).toLowerCase())+')').join(', ')+'. The Competitor keywords tab shows why.':''}</div>`;
+  return `<div class="note" style="margin-top:0"><b>${M.live_competitors} of ${M.total_competitors} competitors measured live.</b> In the detail rows, “measured” means scored from that site's crawled pages (including “not used”); “estimate” means the hand-reviewed value is used because the site was not read properly.${off.length?' Not measured: '+off.map(s=>esc(short(s))+' ('+esc(srcLabel(s).toLowerCase())+')').join(', ')+'. The Competitor keywords tab shows why.':''}</div>`;
 }
 function opportunities(){
   const clusters=D.clusters, actions=['Quick win','Content bet','Defend','Backlog'];
@@ -466,8 +468,8 @@ function audit(){
 function method(){
   return `<div class="card prose"><h2>How this dashboard works</h2>
   <h3>Where the data comes from</h3>
-  <p><b>Live crawl.</b> A scheduled GitHub Action fetches a short, fixed list of public pages for Trovélle and each competitor (homepage, key collections, a few blog posts), obeying robots.txt, waiting 2 seconds between requests per site, and identifying itself. It reads titles, meta descriptions, headings, navigation, FAQ markup, JSON-LD types and visible text.</p>
-  <p><b>Seed list.</b> The ${S.n_keywords} tracked keywords, their demand and difficulty (1–5), brand fit, and each competitor's starting coverage were set by hand from manual review of competitor sites and search results. They are estimates. When the crawl reads a page, the measured value replaces the seed for Trovélle and can only raise a competitor's score, never lower it. If a competitor blocks the crawler, its seed scores stay and the card shows “Blocked”.</p>
+  <p><b>Live crawl.</b> A scheduled GitHub Action fetches public pages for Trovélle and each competitor: the homepage, up to 12 category pages (found from the menu and sitemap), the blog index and up to 8 posts, and 10 product pages, obeying robots.txt, waiting 2 seconds between requests per site, and identifying itself. It reads titles, meta descriptions, headings, navigation, FAQ markup, JSON-LD types and visible text.</p>
+  <p><b>Seed list.</b> The ${S.n_keywords} tracked keywords, their demand and difficulty (1–5), brand fit, and each competitor's starting coverage were set by hand from manual review of competitor sites and search results. They are estimates. Once the crawl has run, Trovélle is scored from the crawl alone. A competitor the crawl read properly (at least 2 pages and 1,500 words) is also scored from the crawl alone, so “not used” means not found on the pages read. A competitor that was blocked, not crawled, or returned too little text keeps the hand-set scores and its card says so.</p>
   <p><b>Your own numbers.</b> Drop a Semrush, Ahrefs, Keyword Planner or Search Console export into <code>data/inputs/metrics.csv</code> (columns <code>keyword, volume, kd</code>) and those terms use real volume and difficulty instead of estimates.</p>
   <h3>What “uses” means</h3>
   <p><b>Strong</b> = the phrase is in a page title, H1, meta description or navigation label. <b>Weak</b> = it appears in a sub-heading, FAQ question, product name, or at least ${'two'} times in body text. <b>Gap</b> = not found. Matching ignores case, accents, plurals, “co-ord / coord”, and filler words, so “co-ord sets for women” matches “Co-ord Set”.</p>
