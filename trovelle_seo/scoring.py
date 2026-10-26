@@ -159,6 +159,7 @@ def build_rows(keywords: list[dict], snapshot: dict, comp_cfg: dict, settings: d
             "words": sum(int(p.get("word_count", 0) or 0) for p in pages),
             "roles": snap.get("discovery", {}).get("roles") or _count_roles(pages),
             "notes": snap.get("discovery", {}).get("notes", []),
+            "discovery": snap.get("discovery"),
             "fetched_at": snap.get("fetched_at", ""), "note": s.get("note", ""),
             "errors": snap.get("errors", [])[:5],
         }

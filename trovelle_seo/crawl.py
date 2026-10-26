@@ -33,6 +33,9 @@ PRODUCT_TEXT_CAP = 1500        # product pages only need the title, price and fi
 BLOCK_CODES = {401, 403, 429}
 DEFAULT_LIMITS = {"categories": 12, "posts": 8, "products": 10}
 BLOG_ROOTS = {"blog", "blogs", "journal", "stories", "magazine", "style-guide", "lookbook"}
+PRODUCT_ROOTS = {"products", "product", "p", "pd", "item", "buy"}
+CATEGORY_ROOTS = {"collection", "collections", "category", "categories", "shop", "c", "catalog", "aza-curates",
+                  "designers", "women", "men", "kids"}
 EXCLUDE_RX = re.compile(
     r"(?:^|/)(?:login|signin|sign-in|register|cart|checkout|account|wishlist|contact(?:-us)?|faqs?|"
     r"terms[a-z-]*|privacy[a-z-]*|returns?[a-z-]*|refund[a-z-]*|shipping[a-z-]*|track[a-z-]*|"
@@ -103,8 +106,12 @@ def classify(url: str, platform: str, rx: dict) -> str | None:
         if root == "collections" and len(segs) == 2:
             return "category"
         return None
+    if root in PRODUCT_ROOTS and len(segs) >= 2:
+        return "product"                       # e.g. /products/<name>/<id>
     if len(segs) == 1 and _looks_like_product(segs[0].lower()):
         return "product"
+    if root in CATEGORY_ROOTS:
+        return "category" if len(segs) <= 4 else None      # e.g. /collection/women/lehengas
     return "category" if len(segs) <= 2 else None
 
 
@@ -208,6 +215,7 @@ def crawl_site(site: dict, fetcher: Fetcher, crawl_cfg: dict, is_self: bool) -> 
         fetch(p["url"], role)
 
     notes: list[str] = []
+    debug: dict = {}
     platform = d.get("platform") or "generic"
     sm_info: dict = {"ok": False, "urls": []}
     fetched_ok = [p for p in pages if p["status"] == 200]
@@ -223,6 +231,17 @@ def crawl_site(site: dict, fetcher: Fetcher, crawl_cfg: dict, is_self: bool) -> 
         def same_site(urls):
             return [_clean(u) for u in dict.fromkeys(urls) if _host(u) == host]
 
+        def kinds(urls):
+            out: dict[str, int] = {}
+            for u in same_site(urls):
+                k = classify(u, platform, rx) or "ignored"
+                out[k] = out.get(k, 0) + 1
+            return out
+
+        debug = {"menu_links": len(pool_nav), "menu_kinds": kinds(pool_nav), "page_links": len(pool_links),
+                 "page_link_kinds": kinds(pool_links),
+                 "menu_sample": [urlparse(u).path or "/" for u in same_site(pool_nav)[:12]],
+                 "link_sample": [urlparse(u).path or "/" for u in same_site(pool_links)[:12]]}
         sm_info = read_sitemap(fetcher, d.get("sitemap") or site.get("sitemap") or origin + "/sitemap.xml")
         sm_urls = same_site(sm_info["urls"])
         sm_by = {"category": [], "product": [], "post": [], "blog-index": []}
@@ -282,6 +301,7 @@ def crawl_site(site: dict, fetcher: Fetcher, crawl_cfg: dict, is_self: bool) -> 
         for u in picks:
             fetch(u, "product")
 
+        debug["sitemap_kinds"] = {k: len(v) for k, v in sm_by.items()}
         found = {k: have(r) for k, r in (("categories", "collection"), ("posts", "post"), ("products", "product"))}
         if enabled and found["products"] == 0:
             notes.append("No product pages recognised. Set discover.product_regex for this site in config/competitors.json.")
@@ -328,7 +348,8 @@ def crawl_site(site: dict, fetcher: Fetcher, crawl_cfg: dict, is_self: bool) -> 
         roles[p["role"]] = roles.get(p["role"], 0) + 1
     rec = {"status": status, "fetched_at": _now(), "pages": pages, "errors": errors,
            "discovery": {"platform": platform, "sitemap_urls": len(sm_info.get("urls", [])),
-                         "sitemap_ok": sm_info.get("ok", False), "roles": roles, "notes": notes}}
+                         "sitemap_ok": sm_info.get("ok", False), "roles": roles, "notes": notes,
+                         "debug": debug}}
     if is_self:
         rec["sitemap"] = _sitemap_stats(sm_info, platform, rx)
     return rec
