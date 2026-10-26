@@ -344,7 +344,8 @@ function competitors(){
     const cls=s.status==='ok'?'ok':s.status==='partial'?'partial':s.status==='blocked'?'blocked':s.status==='error'?'error':s.status==='seed-observation'?'seed':'nc';
     return `<div class="card site ${s.self?'me':''}"><h3>${s.self?'◆ ':''}${esc(s.name)}</h3><div class="meta">${esc(s.tier)}</div>
       <span class="st ${cls}"><span class="ic" aria-hidden="true">${ic}</span>${srcLabel(s)}</span>
-      <div class="cov"><div><b>${s.coverage==null?'–':s.coverage+'%'}</b>uses</div><div><b>${s.strong==null?'–':s.strong+'%'}</b>strong</div><div><b>${s.pages}</b>pages read</div></div>
+      <div class="cov"><div><b>${s.coverage==null?'–':s.coverage+'%'}</b>uses</div><div><b>${s.strong==null?'–':s.strong+'%'}</b>strong</div><div><b>${s.pages}</b>pages read</div><div><b>${(s.words||0).toLocaleString('en-IN')}</b>words read</div></div>
+      ${s.pages&&s.words!=null&&s.words<150*s.pages&&(s.status==='ok'||s.status==='partial')?`<div class="meta">▲ Very little text came back. This site probably builds its pages with JavaScript, so the crawler sees little of it.</div>`:''}
       ${s.fetched_at&&s.status!=='seed-observation'?`<div class="meta" style="margin-top:8px">Fetched ${fmtDT(s.fetched_at)}</div>`:''}
       ${s.note?`<div class="meta">${esc(s.note)}</div>`:''}
       ${s.errors&&s.errors.length?`<details><summary>${s.errors.length} fetch issue${s.errors.length>1?'s':''}</summary><ul>${s.errors.map(e=>`<li>${esc(e)}</li>`).join('')}</ul></details>`:''}</div>`;}).join('');
@@ -367,7 +368,7 @@ function oppRows(){
 function detail(r){
   const who=COMPS.map(s=>{const c=r.comp[s.key];if(c.score==null)return '';const lab=c.score===2?'strong':c.score===1?'weak':'not used';
     const link=c.url&&c.score?` <a href="${esc(c.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(s.name)} page">↗</a>`:'';
-    return `<span class="pill ${c.score===2?'hi':''}">${esc(short(s))}: ${lab}${c.where?' ('+esc(c.where)+')':''}${c.src==='seed'&&c.score?' · seed':''}${link}</span>`;}).join('');
+    return `<span class="pill ${c.score===2?'hi':''}">${esc(short(s))}: ${lab}${c.where?' ('+esc(c.where)+')':''}${c.score?(c.src==='crawl'?' · measured':((s.status==='ok'||s.status==='partial')?' · estimate, not found on crawled pages':' · estimate, site not measured')):''}${link}</span>`;}).join('');
   const t=r.trovelle_obs&&r.trovelle_obs.where?`Found in ${esc(r.trovelle_obs.where)} on ${esc(r.trovelle_obs.url)}`:(r.status==='gap'?'Not found on crawled pages':'Seed estimate');
   return `<tr class="detail"><td colspan="8"><dl>
     <dt>Where to use it</dt><dd>${esc(r.where)}</dd>
@@ -376,9 +377,13 @@ function detail(r){
     <dt>Competitors</dt><dd><div class="who">${who}</div></dd>
     <dt>Inputs</dt><dd>Demand ${r.demand}/5 · Difficulty ${r.difficulty}/5 · Brand fit ${r.fit}/5 · AEO value ${r.aeo}/5 (${r.demand_src})${r.volume?` · volume ${r.volume.toLocaleString('en-IN')}`:''}${r.kd!=null?` · KD ${r.kd}`:''}</dd></dl></td></tr>`;
 }
+function liveBanner(){
+  const off=COMPS.filter(s=>!(s.status==='ok'||s.status==='partial'));
+  return `<div class="note" style="margin-top:0"><b>${M.live_competitors} of ${M.total_competitors} competitors measured live.</b> In the detail rows, “measured” means the phrase was found on that site's crawled pages; “estimate” means the hand-reviewed value is used instead.${off.length?' Not measured: '+off.map(s=>esc(short(s))+' ('+esc(srcLabel(s).toLowerCase())+')').join(', ')+'. The Competitor keywords tab shows why.':''}</div>`;
+}
 function opportunities(){
   const clusters=D.clusters, actions=['Quick win','Content bet','Defend','Backlog'];
-  return `<div class="card"><div class="filters">
+  return `<div class="card">${liveBanner()}<div class="filters">
     <input type="search" id="f-q" placeholder="Search keywords" aria-label="Search keywords">
     <select id="f-cluster" aria-label="Filter by group"><option value="">All groups</option>${clusters.map(c=>`<option>${esc(c)}</option>`).join('')}</select>
     <select id="f-action" aria-label="Filter by action"><option value="">All actions</option>${actions.map(c=>`<option>${c}</option>`).join('')}</select>
