@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trovélle SEO &amp; AEO Dashboard</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f4f3ef; --surface:#fcfcfb; --surface-2:#f0efec; --line:#e3e2dc; --grid:#e6e5e0;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-3:#6b6a63;
+  --s1:#2a78d6; --s2:#eb6834; --weak:#86b6ef; --accent-soft:#e3eefb;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --h0-bg:#ecebe6; --h0-fg:#6b6a63;
+  --h1-bg:#cde2fb; --h1-fg:#0b0b0b; --h2-bg:#9ec5f4; --h2-fg:#0b0b0b;
+  --h3-bg:#5598e7; --h3-fg:#0b0b0b; --h4-bg:#1c5cab; --h4-fg:#ffffff;
+  --shadow:0 1px 2px rgba(11,11,11,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme:dark;
+    --bg:#121211; --surface:#1a1a19; --surface-2:#232321; --line:#2f2f2c; --grid:#2c2c2a;
+    --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#9a998f;
+    --s1:#3987e5; --s2:#d95926; --weak:#184f95; --accent-soft:#1b2a3d;
+    --h0-bg:#262624; --h0-fg:#9a998f;
+    --h1-bg:#104281; --h1-fg:#f0efec; --h2-bg:#1c5cab; --h2-fg:#f0efec;
+    --h3-bg:#2a78d6; --h3-fg:#ffffff; --h4-bg:#5598e7; --h4-fg:#0b0b0b;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121211; --surface:#1a1a19; --surface-2:#232321; --line:#2f2f2c; --grid:#2c2c2a;
+  --ink:#f0efec; --ink-2:#c3c2b7; --ink-3:#9a998f;
+  --s1:#3987e5; --s2:#d95926; --weak:#184f95; --accent-soft:#1b2a3d;
+  --h0-bg:#262624; --h0-fg:#9a998f;
+  --h1-bg:#104281; --h1-fg:#f0efec; --h2-bg:#1c5cab; --h2-fg:#f0efec;
+  --h3-bg:#2a78d6; --h3-fg:#ffffff; --h4-bg:#5598e7; --h4-fg:#0b0b0b;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums}
+a{color:var(--s1)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+header.top{padding:22px 0 14px}
+.top-row{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:24px;line-height:1.2;margin:0 0 4px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--ink-2);margin:0;max-width:70ch}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
+.chip b{color:var(--ink);font-weight:600}
+.btn{font:inherit;font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--surface-2)}
+.btn:focus-visible,.tab:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tab{font:inherit;font-size:14px;color:var(--ink-2);background:none;border:0;border-bottom:2px solid transparent;padding:11px 12px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--s1);font-weight:600}
+main{padding:18px 0 56px}
+section.panel[hidden]{display:none}
+.grid{display:grid;gap:14px}
+.kpis{grid-template-columns:repeat(4,1fr)}
+.two{grid-template-columns:1.25fr 1fr}
+.cards{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+@media (max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
+@media (max-width:520px){.kpis{grid-template-columns:1fr}h1{font-size:21px}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow);min-width:0}
+.card h2{font-size:15.5px;margin:0 0 2px;font-weight:650}
+.card .hint{color:var(--ink-3);font-size:13px;margin:0 0 12px}
+.card-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.kpi .label{color:var(--ink-2);font-size:13px}
+.kpi .num{font-size:34px;line-height:1.15;font-weight:650;letter-spacing:-.02em;margin:2px 0}
+.kpi .desc{color:var(--ink-3);font-size:12.5px}
+.delta{font-size:12.5px;color:var(--ink-2);margin-left:6px;font-weight:500}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin:0 0 10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+/* bars */
+.bars{display:grid;gap:7px}
+.barrow{display:grid;grid-template-columns:minmax(96px,150px) 1fr 44px;gap:10px;align-items:center;font-size:13.5px}
+.barrow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink)}
+.barrow.me .nm{font-weight:650}
+.barrow .nm small{color:var(--ink-3);font-weight:400}
+.track{display:flex;gap:2px;height:10px;background:transparent}
+.seg{height:10px;min-width:0}
+.seg.strong{background:var(--s1)}.seg.weak{background:var(--weak)}
+.seg:last-child{border-radius:0 4px 4px 0}
+.seg:first-child:last-child{border-radius:0 4px 4px 0}
+.barrow .val{text-align:right;color:var(--ink);font-weight:550}
+.barrow .val.na{color:var(--ink-3);font-weight:400}
+/* heatmap */
+.heat-scroll{overflow-x:auto}
+.heat{display:grid;gap:2px;min-width:760px;font-size:12.5px}
+.heat .hd{color:var(--ink-2);padding:2px 2px 6px;text-align:center;font-size:11.5px;line-height:1.2;align-self:end}
+.heat .hd.me{color:var(--ink);font-weight:650}
+.heat .rh{padding:6px 8px 6px 0;color:var(--ink);align-self:center;font-size:13px}
+.heat .rh small{color:var(--ink-3)}
+.heat .c{border-radius:4px;text-align:center;padding:7px 0;font-weight:550;cursor:default}
+.heat .c.l0{background:var(--h0-bg);color:var(--h0-fg);font-weight:400}.heat .c.l1{background:var(--h1-bg);color:var(--h1-fg)}
+.heat .c.l2{background:var(--h2-bg);color:var(--h2-fg)}.heat .c.l3{background:var(--h3-bg);color:var(--h3-fg)}
+.heat .c.l4{background:var(--h4-bg);color:var(--h4-fg)}
+.heat .c.na{background:transparent;border:1px dashed var(--line);color:var(--ink-3);font-weight:400}
+.heat .c.me{outline:2px solid var(--ink);outline-offset:-2px}
+.heat .g{text-align:center;align-self:center;color:var(--ink);font-weight:600}
+.scale{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--ink-3);margin-top:10px;flex-wrap:wrap}
+.scale span.sw{display:inline-block;width:22px;height:12px;border-radius:3px}
+/* status */
+.st{display:inline-flex;gap:5px;align-items:center;white-space:nowrap;font-size:13px}
+.st .ic{font-weight:700;font-size:12px;width:14px;text-align:center}
+.st.pass .ic,.st.ok .ic{color:var(--good)}.st.warn .ic,.st.partial .ic{color:var(--warn)}.st.fail .ic,.st.error .ic{color:var(--crit)}
+.st.unknown .ic,.st.seed .ic,.st.nc .ic{color:var(--ink-3)}.st.blocked .ic{color:var(--serious)}
+.kw-using .ic{color:var(--s1)}.kw-weak .ic{color:var(--s2)}.kw-gap .ic{color:var(--ink-3)}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 7px;font-size:12px;color:var(--ink-2);background:var(--surface-2);white-space:nowrap}
+.pill.hi{border-color:var(--s1);color:var(--ink);background:var(--accent-soft)}
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-2);background:var(--surface-2);font-size:12.5px;white-space:nowrap;position:sticky;top:0}
+th.sort{cursor:pointer;user-select:none}
+th.sort[aria-sort="ascending"]::after{content:" ▲";font-size:9px}th.sort[aria-sort="descending"]::after{content:" ▼";font-size:9px}
+tr:last-child td{border-bottom:0}
+tr.row{cursor:pointer}tr.row:hover td{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+.scorebar{display:flex;gap:8px;align-items:center;min-width:110px}
+.scorebar .b{flex:1;height:8px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.scorebar .b i{display:block;height:100%;background:var(--s1);border-radius:0 4px 4px 0}
+.scorebar span{width:26px;text-align:right;font-weight:600}
+.strip{display:inline-flex;gap:2px;vertical-align:middle}
+.strip i{width:9px;height:14px;border-radius:2px;border:1px solid var(--ink-3);display:block}
+.strip i.s2{background:var(--s1);border-color:var(--s1)}
+.strip i.s1{background:linear-gradient(to top,var(--s1) 50%,transparent 50%);border-color:var(--s1)}
+.strip i.na{border-style:dashed;opacity:.5}
+.detail td{background:var(--surface-2);padding:12px 14px}
+.detail dl{margin:0;display:grid;grid-template-columns:150px 1fr;gap:6px 14px}
+.detail dt{color:var(--ink-3);font-size:12.5px}.detail dd{margin:0}
+.who{display:flex;gap:6px;flex-wrap:wrap}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.filters input[type=search],.filters select{font:inherit;font-size:13.5px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.filters input[type=search]{min-width:200px;flex:1;max-width:320px}
+.filters label{font-size:13.5px;color:var(--ink-2);display:inline-flex;gap:6px;align-items:center}
+.count{color:var(--ink-3);font-size:13px;margin-left:auto}
+/* site cards */
+.site h3{margin:0;font-size:15px}
+.site .meta{color:var(--ink-3);font-size:12.5px;margin:2px 0 8px}
+.site .cov{display:flex;gap:14px;font-size:13px;margin-top:8px;color:var(--ink-2)}
+.site .cov b{color:var(--ink);font-size:18px;display:block;line-height:1.2}
+.site details{margin-top:8px;font-size:12.5px;color:var(--ink-3)}
+.site.me{border-color:var(--s1)}
+/* aeo/plan */
+details.q{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:8px}
+details.q>summary{cursor:pointer;padding:11px 14px;list-style:none;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+details.q>summary::-webkit-details-marker{display:none}
+details.q>summary .t{font-weight:600}
+details.q>summary .m{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+details.q .body{padding:2px 14px 14px;border-top:1px solid var(--line)}
+.ans{background:var(--surface-2);border-radius:8px;padding:10px 12px;margin:10px 0;white-space:pre-wrap}
+mark.ph{background:color-mix(in srgb,var(--warn) 30%,transparent);color:var(--ink);border-radius:3px;padding:0 2px}
+.note{border-left:3px solid var(--warn);background:var(--surface-2);padding:8px 12px;border-radius:0 8px 8px 0;font-size:13.5px;margin:8px 0}
+.group-h{font-size:13px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px;font-weight:600}
+.check{display:grid;grid-template-columns:96px 1fr;gap:4px 14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:0}
+.check h3{font-size:14.5px;margin:0}
+.check p{margin:3px 0 0;color:var(--ink-2);font-size:13.5px}
+.check .fix{color:var(--ink)}
+@media (max-width:560px){.check{grid-template-columns:1fr}.detail dl{grid-template-columns:1fr}}
+.tabletoggle{font-size:12.5px}
+.empty{color:var(--ink-3);padding:14px;border:1px dashed var(--line);border-radius:10px;font-size:13.5px}
+/* line chart */
+.lc text{fill:var(--ink-3);font-size:11px}
+.lc .gl{stroke:var(--grid);stroke-width:1}
+.lc .ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.lc .dot{stroke:var(--surface);stroke-width:2}
+.lc .xh{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:3 3}
+/* tooltip */
+#tip{position:fixed;z-index:50;pointer-events:none;background:var(--ink);color:var(--surface);padding:6px 9px;border-radius:7px;font-size:12.5px;max-width:280px;opacity:0;transition:opacity .08s}
+#tip.on{opacity:1}
+.prose h3{font-size:15px;margin:18px 0 4px}.prose p,.prose li{color:var(--ink-2);max-width:78ch}.prose code{background:var(--surface-2);padding:1px 5px;border-radius:4px;font-size:13px}
+footer{color:var(--ink-3);font-size:12.5px;padding:20px 0 40px;border-top:1px solid var(--line)}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="top-row">
+    <div>
+      <h1>Trovélle SEO &amp; AEO dashboard</h1>
+      <p class="sub">What competitors rank for, where trovelle.in is missing, and what to publish next to be found in Google and quoted by AI answer engines.</p>
+    </div>
+    <div style="display:flex;gap:8px"><button class="btn" id="exportCsv" type="button">Export opportunities (CSV)</button><button class="btn" id="themeBtn" type="button" aria-label="Toggle light or dark theme">Theme</button></div>
+  </div>
+  <div class="chips" id="chips"></div>
+</div></header>
+<nav class="tabs" aria-label="Sections"><div class="wrap" role="tablist" id="tabs"></div></nav>
+<main><div class="wrap" id="panels"></div></main>
+<div class="wrap"><footer id="foot"></footer></div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const D = /*__DATA__*/null;
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+if(!D){document.body.innerHTML='<div class="wrap"><p>No data embedded. Run <code>python -m trovelle_seo build</code>.</p></div>';return;}
+
+/* theme */
+const root=document.documentElement;
+try{const t=localStorage.getItem('tv-theme'); if(t) root.setAttribute('data-theme',t);}catch(e){}
+$('#themeBtn').onclick=()=>{
+  const dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const n=dark?'light':'dark'; root.setAttribute('data-theme',n); try{localStorage.setItem('tv-theme',n);}catch(e){}
+};
+
+/* data helpers */
+const M=D.meta,S=D.summary,SITES=S.site_coverage,KW=D.keywords;
+const COMPS=SITES.filter(s=>!s.self), ME=SITES.find(s=>s.self);
+const SHORT={trovelle:'Trovélle',aza:'Aza',pernia:'Pernia\'s',nykaa:'Nykaa F.',fabilicious:'Fabilicious',inching:'Inching',truebrowns:'trueBrowns',ikkivi:'IKKIVI',itokri:'iTokri',ogaan:'Ogaan',kalki:'Kalki',aashni:'Aashni'};
+const short=s=>SHORT[s.key]||s.name;
+const NAME=Object.fromEntries(SITES.map(s=>[s.key,s.name]));
+const fmtDate=iso=>{if(!iso)return '';const d=new Date(iso);return isNaN(d)?iso:d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});};
+const fmtDT=iso=>{if(!iso)return '';const d=new Date(iso);return isNaN(d)?iso:d.toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Kolkata'})+' IST';};
+const srcLabel=s=>s.status==='ok'||s.status==='partial'?'Live crawl':s.status==='seed-observation'?'Seed baseline':s.status==='blocked'?'Blocked, using seed':s.status==='error'?'Error, using seed':s.seeded?'Not crawled, using seed':'Not crawled yet';
+const stateIcon={ok:['✓','Live'],partial:['▲','Partial'],blocked:['■','Blocked'],error:['✕','Error'],'not-crawled':['–','Not crawled'],'seed-observation':['◆','Seed']};
+const KWST={using:['●','Using','kw-using'],weak:['◐','Weak','kw-weak'],gap:['○','Gap','kw-gap']};
+const kwStatus=s=>{const [i,l,c]=KWST[s];return `<span class="st ${c}"><span class="ic" aria-hidden="true">${i}</span>${l}</span>`;};
+const AUD={pass:['✓','Pass'],warn:['▲','Warn'],fail:['✕','Fail'],unknown:['?','Unknown']};
+const audStatus=s=>`<span class="st ${s}"><span class="ic" aria-hidden="true">${AUD[s][0]}</span>${AUD[s][1]}</span>`;
+const prev=(()=>{const h=D.history||[];return h.length>1?h[h.length-2]:null;})();
+const delta=(now,then,good='up',unit='')=>{ if(then==null)return ''; const d=now-then; if(!d)return '<span class="delta">no change</span>'; return `<span class="delta">${d>0?'▲':'▼'} ${Math.abs(d)}${unit} since ${fmtDate(prev.date)}</span>`;};
+
+/* tooltip */
+const tip=$('#tip');
+function showTip(e,t){tip.textContent=t;tip.classList.add('on');const w=tip.offsetWidth,h=tip.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-12;if(y+h>innerHeight-8)y=e.clientY-h-12;tip.style.left=Math.max(8,x)+'px';tip.style.top=Math.max(8,y)+'px';}
+document.addEventListener('mousemove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t)showTip(e,t.dataset.tip);else tip.classList.remove('on');});
+document.addEventListener('focusin',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t){const r=t.getBoundingClientRect();showTip({clientX:r.left+r.width/2,clientY:r.top},t.dataset.tip);}});
+document.addEventListener('focusout',()=>tip.classList.remove('on'));
+
+/* header chips */
+(function(){
+  const live=M.live_competitors,tot=M.total_competitors;
+  const chips=[
+    `<span class="chip">Built <b>${esc(M.built_label)}</b></span>`,
+    `<span class="chip">Competitors measured live <b>${live} of ${tot}</b></span>`,
+    `<span class="chip">Trovélle data <b>${esc(M.provenance.trovelle_source)}</b></span>`,
+    `<span class="chip">Demand &amp; difficulty <b>${M.metrics_rows?M.metrics_rows+' keywords from your export':'analyst estimates'}</b></span>`];
+  if(M.blocked.length)chips.push(`<span class="chip">■ Blocked/failed: <b>${esc(M.blocked.join(', '))}</b></span>`);
+  $('#chips').innerHTML=chips.join('');
+})();
+
+/* tabs */
+const TABS=[['overview','Overview'],['competitors','Competitor keywords'],['opportunities','Opportunities'],['plan','Content plan'],['aeo','AEO answers'],['audit','Site audit'],['method','Method']];
+$('#tabs').innerHTML=TABS.map(([id,l])=>`<button class="tab" role="tab" id="t-${id}" aria-controls="p-${id}" aria-selected="false" data-id="${id}">${l}</button>`).join('');
+$('#panels').innerHTML=TABS.map(([id])=>`<section class="panel" role="tabpanel" id="p-${id}" aria-labelledby="t-${id}" hidden></section>`).join('');
+function go(id,push){ if(!TABS.some(t=>t[0]===id))id='overview';
+  $$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.id===id));
+  $$('.panel').forEach(p=>p.hidden=p.id!=='p-'+id);
+  if(push)history.replaceState(null,'','#'+id); window.scrollTo({top:0}); }
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)go(b.dataset.id,true);});
+document.addEventListener('click',e=>{const a=e.target.closest('[data-go]');if(a){e.preventDefault();go(a.dataset.go,true);}});
+
+/* chart card with table toggle */
+function chartCard(id,title,hint,chartHtml,tableHtml,legend){
+  return `<div class="card" id="${id}"><div class="card-head"><div><h2>${title}</h2><p class="hint">${hint}</p></div><button class="btn tabletoggle" type="button" data-toggle="${id}" aria-pressed="false">View as table</button></div>${legend||''}<div class="v-chart">${chartHtml}</div><div class="v-table" hidden>${tableHtml}</div></div>`;
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-toggle]');if(!b)return;const c=document.getElementById(b.dataset.toggle);const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);b.textContent=on?'View as chart':'View as table';$('.v-chart',c).hidden=on;$('.v-table',c).hidden=!on;});
+
+/* ---------- OVERVIEW ---------- */
+function overview(){
+  const a=D.audit, c=a.counts;
+  const k=[
+    ['Keywords Trovélle targets',S.strong_pct+'%',delta(S.strong_pct,prev&&prev.strong_pct,'up','pt'),`${S.by_status.using} of ${S.n_keywords} tracked terms are in a title, H1, meta or menu label. Another ${S.by_status.weak} appear only in body text or sub-headings.`],
+    ['Gaps competitors already use',S.validated_gaps,delta(S.validated_gaps,prev&&prev.validated_gaps),'Terms at least one competitor uses where Trovélle is absent or weak.'],
+    ['Quick wins',S.quick_wins,delta(S.quick_wins,prev&&prev.quick_wins),`On-site fixes and collection pages scoring 25+. Another ${S.content_bets} need new content.`],
+    ['Site audit',a.available?`${c.fail} fail`:'n/a','',a.available?`${c.warn} warnings, ${c.pass} passing, ${c.unknown} not checkable. ${a.pages_checked} pages read.`:'Appears after the first successful crawl of trovelle.in.']];
+  const kpis=`<div class="grid kpis">${k.map(x=>`<div class="card kpi"><div class="label">${x[0]}</div><div class="num">${x[1]}${x[2]}</div><div class="desc">${x[3]}</div></div>`).join('')}</div>`;
+
+  /* stacked bars */
+  const rows=[...SITES].filter(s=>s.coverage!=null).sort((a,b)=>(b.coverage-a.coverage)||a.name.localeCompare(b.name));
+  const bars=rows.map(s=>{
+    const weak=s.coverage-s.strong;
+    const src=s.self?(M.provenance.trovelle_source.startsWith('live')?'live':'seed'):(s.status==='ok'||s.status==='partial'?'live':(s.seeded?'seed':''));
+    const tipT=`${s.name}: ${s.coverage}% of ${s.n} tracked terms (${s.strong}% strong, ${weak}% weak). Source: ${srcLabel(s)}.`;
+    return `<div class="barrow ${s.self?'me':''}" data-tip="${esc(tipT)}" tabindex="0"><div class="nm">${s.self?'◆ ':''}${esc(s.name)} <small>${src}</small></div><div class="track"><div class="seg strong" style="width:${s.strong}%"></div>${weak?`<div class="seg weak" style="width:${weak}%"></div>`:''}</div><div class="val">${s.coverage}%</div></div>`;
+  }).join('');
+  const na=SITES.filter(s=>s.coverage==null);
+  const barsHtml=`<div class="bars">${bars}</div>${na.length?`<p class="hint" style="margin-top:10px">No data yet: ${na.map(s=>esc(s.name)).join(', ')}. They fill in after a successful crawl.</p>`:''}`;
+  const barsTbl=`<div class="tbl-wrap"><table><thead><tr><th>Site</th><th class="num">Uses</th><th class="num">Strong</th><th class="num">Tracked</th><th>Source</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${esc(s.name)}</td><td class="num">${s.coverage}%</td><td class="num">${s.strong}%</td><td class="num">${s.n}</td><td>${srcLabel(s)}</td></tr>`).join('')}</tbody></table></div>`;
+  const legend=`<div class="legend"><span><i style="background:var(--s1)"></i>Strong: in title, H1, meta or navigation</span><span><i style="background:var(--weak)"></i>Weak: in a sub-heading, FAQ or repeated in body text</span></div>`;
+  const barCard=chartCard('c-bars','Share of tracked keywords each site uses','“seed” = hand-reviewed estimate; “live” = measured from the latest crawl.',barsHtml,barsTbl,legend);
+
+  /* heatmap */
+  const cols=SITES.length;
+  const lvl=p=>p===0?0:p<=25?1:p<=50?2:p<=75?3:4;
+  let heat=`<div class="heat-scroll"><div class="heat" style="grid-template-columns:minmax(150px,1.4fr) repeat(${cols},minmax(48px,1fr)) 46px"><div></div>`+SITES.map(s=>`<div class="hd ${s.self?'me':''}">${esc(short(s))}</div>`).join('')+`<div class="hd" data-tip="Keywords in this group that a competitor uses and Trovélle does not fully use">Gaps</div>`;
+  S.matrix.forEach(r=>{
+    heat+=`<div class="rh">${esc(r.cluster)} <small>${r.n}</small></div>`;
+    SITES.forEach(s=>{const c=r.cells[s.key];
+      if(!c)heat+=`<div class="c na" data-tip="${esc(s.name)}: no data yet">–</div>`;
+      else heat+=`<div class="c l${lvl(c.pct)} ${s.self?'me':''}" tabindex="0" data-tip="${esc(r.cluster)} · ${esc(s.name)}: uses ${c.used} of ${c.n} terms (${c.pct}%)">${c.pct}</div>`;});
+    heat+=`<div class="g">${r.gaps||'–'}</div>`;
+  });
+  heat+=`</div></div><div class="scale">% of the group's terms used: <span class="sw" style="background:var(--h0-bg)"></span>0 <span class="sw" style="background:var(--h1-bg)"></span>1–25 <span class="sw" style="background:var(--h2-bg)"></span>26–50 <span class="sw" style="background:var(--h3-bg)"></span>51–75 <span class="sw" style="background:var(--h4-bg)"></span>76–100. Outlined column = Trovélle.</div>`;
+  const heatTbl=`<div class="tbl-wrap"><table><thead><tr><th>Group</th>${SITES.map(s=>`<th class="num">${esc(short(s))}</th>`).join('')}<th class="num">Gaps</th></tr></thead><tbody>${S.matrix.map(r=>`<tr><td>${esc(r.cluster)} (${r.n})</td>${SITES.map(s=>`<td class="num">${r.cells[s.key]?r.cells[s.key].pct+'%':'–'}</td>`).join('')}<td class="num">${r.gaps}</td></tr>`).join('')}</tbody></table></div>`;
+  const heatCard=chartCard('c-heat','Where the competition is concentrated','Rows are keyword groups. Darker = more of the group is covered by that site. The last column counts gaps to close.',heat,heatTbl,'');
+
+  /* top opportunities */
+  const top=KW.filter(r=>r.action==='Quick win'||r.action==='Content bet').slice(0,8);
+  const topHtml=`<div class="tbl-wrap"><table><thead><tr><th>Keyword</th><th class="num">Score</th><th>Do this</th></tr></thead><tbody>${top.map(r=>`<tr><td>${esc(r.keyword)}<div style="color:var(--ink-3);font-size:12.5px">${r.comp_users} competitor${r.comp_users===1?'':'s'} use it · Trovélle: ${KWST[r.status][1].toLowerCase()}</div></td><td class="num"><b>${r.score}</b></td><td>${esc(r.action_type)}</td></tr>`).join('')}</tbody></table></div><p style="margin:10px 0 0"><a href="#opportunities" data-go="opportunities">See all ${KW.length} keywords →</a></p>`;
+  const topCard=`<div class="card"><h2>Do these first</h2><p class="hint">Highest opportunity score: demand × fit × ease × how open the gap is.</p>${topHtml}</div>`;
+
+  /* history */
+  const H=D.history||[];
+  let histCard;
+  if(H.length>=2){
+    histCard=chartCard('c-hist','Trovélle keyword coverage over time','One point per day the dashboard rebuilds.',lineChart(H),`<div class="tbl-wrap"><table><thead><tr><th>Date</th><th class="num">Uses</th><th class="num">Strong</th><th class="num">Gaps</th><th class="num">Audit fails</th></tr></thead><tbody>${H.slice().reverse().map(h=>`<tr><td>${fmtDate(h.date)}</td><td class="num">${h.coverage_pct}%</td><td class="num">${h.strong_pct}%</td><td class="num">${h.validated_gaps}</td><td class="num">${h.audit?h.audit.fail:'–'}</td></tr>`).join('')}</tbody></table></div>`,
+      `<div class="legend"><span><i style="background:var(--s1)"></i>Uses (any strength)</span><span><i style="background:var(--s2)"></i>Strong only</span></div>`);
+  } else {
+    histCard=`<div class="card"><h2>Trovélle keyword coverage over time</h2><p class="hint">History is recorded each time the dashboard rebuilds.</p><div class="empty">First data point recorded ${H.length?fmtDate(H[0].date):'today'}: ${S.coverage_pct}% of tracked terms used, ${S.strong_pct}% strongly. The trend line appears after the next scheduled refresh.</div></div>`;
+  }
+  return kpis+`<div class="grid" style="margin-top:14px">${barCard}${heatCard}<div class="grid two">${topCard}${histCard}</div></div>`;
+}
+function lineChart(H){
+  const W=520,Hh=230,L=34,R=44,T=12,B=26,iw=W-L-R,ih=Hh-T-B;
+  const x=i=>L+(H.length===1?iw/2:i*iw/(H.length-1)), y=v=>T+ih-(v/100)*ih;
+  const series=[['coverage_pct','var(--s1)','Uses'],['strong_pct','var(--s2)','Strong']];
+  let g='';[0,25,50,75,100].forEach(v=>{g+=`<line class="gl" x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${v}%</text>`;});
+  const step=Math.max(1,Math.ceil(H.length/6));
+  H.forEach((h,i)=>{if(i%step===0||i===H.length-1)g+=`<text x="${x(i)}" y="${Hh-6}" text-anchor="middle">${new Date(h.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</text>`;});
+  series.forEach(([k,c,l])=>{
+    g+=`<polyline class="ln" stroke="${c}" points="${H.map((h,i)=>x(i)+','+y(h[k])).join(' ')}"/>`;
+    H.forEach((h,i)=>{g+=`<circle class="dot" cx="${x(i)}" cy="${y(h[k])}" r="4" fill="${c}"/>`;});
+    const last=H[H.length-1];g+=`<text x="${x(H.length-1)+8}" y="${y(last[k])+4}" style="fill:var(--ink)">${last[k]}%</text>`;
+  });
+  H.forEach((h,i)=>{g+=`<rect x="${x(i)-Math.min(22,iw/H.length/2)}" y="${T}" width="${Math.min(44,iw/H.length)}" height="${ih}" fill="transparent" tabindex="0" data-tip="${esc(fmtDate(h.date)+' · Uses '+h.coverage_pct+'% · Strong '+h.strong_pct+'% · Gaps '+h.validated_gaps)}"/>`;});
+  return `<svg class="lc" viewBox="0 0 ${W} ${Hh}" width="100%" role="img" aria-label="Line chart of Trovélle keyword coverage by date">${g}</svg>`;
+}
+
+/* ---------- COMPETITORS ---------- */
+function competitors(){
+  const cards=SITES.map(s=>{
+    const [ic,lab]=stateIcon[s.status]||['–',s.status];
+    const cls=s.status==='ok'?'ok':s.status==='partial'?'partial':s.status==='blocked'?'blocked':s.status==='error'?'error':s.status==='seed-observation'?'seed':'nc';
+    return `<div class="card site ${s.self?'me':''}"><h3>${s.self?'◆ ':''}${esc(s.name)}</h3><div class="meta">${esc(s.tier)}</div>
+      <span class="st ${cls}"><span class="ic" aria-hidden="true">${ic}</span>${srcLabel(s)}</span>
+      <div class="cov"><div><b>${s.coverage==null?'–':s.coverage+'%'}</b>uses</div><div><b>${s.strong==null?'–':s.strong+'%'}</b>strong</div><div><b>${s.pages}</b>pages read</div></div>
+      ${s.fetched_at&&s.status!=='seed-observation'?`<div class="meta" style="margin-top:8px">Fetched ${fmtDT(s.fetched_at)}</div>`:''}
+      ${s.note?`<div class="meta">${esc(s.note)}</div>`:''}
+      ${s.errors&&s.errors.length?`<details><summary>${s.errors.length} fetch issue${s.errors.length>1?'s':''}</summary><ul>${s.errors.map(e=>`<li>${esc(e)}</li>`).join('')}</ul></details>`:''}</div>`;}).join('');
+  const P=D.phrases||[];
+  const phr=P.length?`<div class="tbl-wrap"><table><thead><tr><th>Phrase in competitor titles, headings, meta or navigation</th><th class="num">Sites</th><th>Used by</th><th>Trovélle</th></tr></thead><tbody>${P.map(p=>`<tr><td>${esc(p.phrase)}</td><td class="num">${p.n_sites}</td><td><div class="who">${p.sites.map(k=>`<span class="pill">${esc(SHORT[k]||NAME[k]||k)}</span>`).join('')}</div></td><td>${p.trovelle==null?'<span class="st unknown"><span class="ic">?</span>Unknown</span>':p.trovelle?kwStatus('using'):kwStatus('gap')}</td></tr>`).join('')}</tbody></table></div>`
+    :`<div class="empty">Phrase mining runs on live crawl data. It appears after the first successful crawl of at least one competitor. Until then the keyword scores come from the hand-reviewed seed list.</div>`;
+  return `<div class="card" style="margin-bottom:14px"><h2>What competitors actually put in their pages</h2><p class="hint">Mined from the latest crawl. A phrase is listed when two or more competitors use it (one, if fewer than three were crawled). Brand names are removed.</p>${phr}</div>
+  <div class="group-h">Crawl status by site</div><div class="grid cards">${cards}</div>`;
+}
+
+/* ---------- OPPORTUNITIES ---------- */
+const state={q:'',cluster:'',action:'',status:'',only:false,sort:'score',dir:-1,open:null};
+function strip(r){return `<span class="strip" aria-hidden="true">${COMPS.map(s=>{const c=r.comp[s.key];const v=c.score;return `<i class="${v==null?'na':'s'+v}"></i>`;}).join('')}</span>`;}
+function oppRows(){
+  let rows=KW.filter(r=>(!state.q||(r.keyword+' '+r.cluster).toLowerCase().includes(state.q))&&(!state.cluster||r.cluster===state.cluster)&&(!state.action||r.action===state.action)&&(!state.status||r.status===state.status)&&(!state.only||(r.comp_users>0&&r.status!=='using')));
+  const k=state.sort,d=state.dir;
+  rows=rows.slice().sort((a,b)=>{const av=a[k],bv=b[k];const c=typeof av==='string'?av.localeCompare(bv):(av-bv);return c?c*d:a.keyword.localeCompare(b.keyword);});
+  return rows;
+}
+function detail(r){
+  const who=COMPS.map(s=>{const c=r.comp[s.key];if(c.score==null)return '';const lab=c.score===2?'strong':c.score===1?'weak':'not used';
+    const link=c.url&&c.score?` <a href="${esc(c.url)}" target="_blank" rel="noopener" aria-label="Open ${esc(s.name)} page">↗</a>`:'';
+    return `<span class="pill ${c.score===2?'hi':''}">${esc(short(s))}: ${lab}${c.where?' ('+esc(c.where)+')':''}${c.src==='seed'&&c.score?' · seed':''}${link}</span>`;}).join('');
+  const t=r.trovelle_obs&&r.trovelle_obs.where?`Found in ${esc(r.trovelle_obs.where)} on ${esc(r.trovelle_obs.url)}`:(r.status==='gap'?'Not found on crawled pages':'Seed estimate');
+  return `<tr class="detail"><td colspan="8"><dl>
+    <dt>Where to use it</dt><dd>${esc(r.where)}</dd>
+    <dt>Why</dt><dd>${esc(r.evidence)}</dd>
+    <dt>Trovélle today</dt><dd>${t}</dd>
+    <dt>Competitors</dt><dd><div class="who">${who}</div></dd>
+    <dt>Inputs</dt><dd>Demand ${r.demand}/5 · Difficulty ${r.difficulty}/5 · Brand fit ${r.fit}/5 · AEO value ${r.aeo}/5 (${r.demand_src})${r.volume?` · volume ${r.volume.toLocaleString('en-IN')}`:''}${r.kd!=null?` · KD ${r.kd}`:''}</dd></dl></td></tr>`;
+}
+function opportunities(){
+  const clusters=D.clusters, actions=['Quick win','Content bet','Defend','Backlog'];
+  return `<div class="card"><div class="filters">
+    <input type="search" id="f-q" placeholder="Search keywords" aria-label="Search keywords">
+    <select id="f-cluster" aria-label="Filter by group"><option value="">All groups</option>${clusters.map(c=>`<option>${esc(c)}</option>`).join('')}</select>
+    <select id="f-action" aria-label="Filter by action"><option value="">All actions</option>${actions.map(c=>`<option>${c}</option>`).join('')}</select>
+    <select id="f-status" aria-label="Filter by Trovélle status"><option value="">Any Trovélle status</option><option value="gap">Gap</option><option value="weak">Weak</option><option value="using">Using</option></select>
+    <label><input type="checkbox" id="f-only"> Competitors use it, Trovélle doesn't</label>
+    <span class="count" id="f-count"></span></div>
+    <div class="legend"><span>Competitor strip, left to right: ${COMPS.map(s=>esc(short(s))).join(', ')}</span><span><span class="strip"><i class="s2"></i><i class="s1"></i><i></i><i class="na"></i></span> strong, weak, not used, no data</span></div>
+    <div class="tbl-wrap"><table id="opp"><thead><tr>
+      <th class="sort" data-k="keyword" scope="col">Keyword</th><th class="sort" data-k="cluster" scope="col">Group</th><th class="sort" data-k="score" scope="col">Opportunity</th>
+      <th class="sort" data-k="status" scope="col">Trovélle</th><th class="sort" data-k="comp_users" scope="col">Competitors</th><th class="sort num" data-k="demand" scope="col">Demand</th><th class="sort num" data-k="difficulty" scope="col">Difficulty</th><th class="sort" data-k="action" scope="col">Action</th></tr></thead><tbody></tbody></table></div></div>`;
+}
+function drawOpp(){
+  const rows=oppRows(), tb=$('#opp tbody');
+  $('#f-count').textContent=`${rows.length} of ${KW.length} keywords`;
+  tb.innerHTML=rows.map(r=>{const open=state.open===r.keyword;
+    return `<tr class="row" tabindex="0" data-kw="${esc(r.keyword)}" aria-expanded="${open}"><td><b>${esc(r.keyword)}</b></td><td>${esc(r.cluster)}</td>
+    <td><div class="scorebar"><div class="b"><i style="width:${r.score}%"></i></div><span>${r.score}</span></div></td><td>${kwStatus(r.status)}</td>
+    <td>${strip(r)} <span style="color:var(--ink-2)">${r.comp_users}/${COMPS.length}</span></td><td class="num">${r.demand}</td><td class="num">${r.difficulty}</td>
+    <td><span class="pill ${r.action==='Quick win'?'hi':''}">${r.action}</span></td></tr>${open?detail(r):''}`;}).join('')||`<tr><td colspan="8" class="empty">No keywords match these filters.</td></tr>`;
+  $$('#opp th.sort').forEach(th=>th.setAttribute('aria-sort',th.dataset.k===state.sort?(state.dir>0?'ascending':'descending'):'none'));
+}
+function bindOpp(){
+  $('#f-q').oninput=e=>{state.q=e.target.value.trim().toLowerCase();drawOpp();};
+  $('#f-cluster').onchange=e=>{state.cluster=e.target.value;drawOpp();};
+  $('#f-action').onchange=e=>{state.action=e.target.value;drawOpp();};
+  $('#f-status').onchange=e=>{state.status=e.target.value;drawOpp();};
+  $('#f-only').onchange=e=>{state.only=e.target.checked;drawOpp();};
+  $('#opp thead').onclick=e=>{const th=e.target.closest('th.sort');if(!th)return;if(state.sort===th.dataset.k)state.dir*=-1;else{state.sort=th.dataset.k;state.dir=['keyword','cluster','status','action'].includes(th.dataset.k)?1:-1;}drawOpp();};
+  const toggle=tr=>{const k=tr.dataset.kw;state.open=state.open===k?null:k;drawOpp();};
+  $('#opp tbody').onclick=e=>{if(e.target.closest('a'))return;const tr=e.target.closest('tr.row');if(tr)toggle(tr);};
+  $('#opp tbody').onkeydown=e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('tr.row')){e.preventDefault();toggle(e.target);}};
+  drawOpp();
+}
+$('#exportCsv').onclick=()=>{
+  const head=['keyword','group','opportunity_score','trovelle_status','competitors_using','demand','difficulty','fit','aeo','action','action_type','where_to_use','evidence'];
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const csv=[head.join(',')].concat(KW.map(r=>[r.keyword,r.cluster,r.score,r.status,r.comp_users,r.demand,r.difficulty,r.fit,r.aeo,r.action,r.action_type,r.where,r.evidence].map(q).join(','))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download='trovelle-keyword-opportunities.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+
+/* ---------- PLAN ---------- */
+function plan(){
+  const P=D.plan.slice().sort((a,b)=>a.priority.localeCompare(b.priority)||a.publish_by.localeCompare(b.publish_by));
+  const labels={P0:'P0: publish this week or next (time-sensitive)',P1:'P1: next 2–4 weeks',P2:'P2: build out the library'};
+  let h=`<div class="note">Diwali is in early November, so the P0 pieces are only useful if they are live in days, not weeks. Competitors such as Aza already have Diwali guides indexed.</div>`;
+  ['P0','P1','P2'].forEach(p=>{const items=P.filter(x=>x.priority===p);if(!items.length)return;
+    h+=`<div class="group-h">${labels[p]||p}</div><div class="tbl-wrap"><table><thead><tr><th>Publish by</th><th>Working title</th><th>Target keyword</th><th>Trovélle today</th><th>Format</th><th>Structure for AEO</th></tr></thead><tbody>${items.map(x=>{
+      const dl=x.days_left; const when=dl==null?'':dl<0?`<div style="color:var(--crit)">✕ ${-dl} days overdue</div>`:dl<=14?`<div>⏱ in ${dl} day${dl===1?'':'s'}</div>`:`<div style="color:var(--ink-3)">in ${dl} days</div>`;
+      return `<tr><td style="white-space:nowrap"><b>${fmtDate(x.publish_by)}</b>${when}</td><td><b>${esc(x.title)}</b><div style="color:var(--ink-3);font-size:12.5px">${esc(x.why)}</div></td><td>${esc(x.keyword)}</td><td>${x.kw?kwStatus(x.kw.status)+`<div style="color:var(--ink-3);font-size:12.5px">${x.kw.comp_users} competitors use it</div>`:'<span class="st unknown"><span class="ic">?</span>Not tracked</span>'}</td><td>${esc(x.format)}</td><td style="max-width:360px">${esc(x.aeo_structure)}</td></tr>`;}).join('')}</tbody></table></div>`;});
+  return h;
+}
+
+/* ---------- AEO ---------- */
+const ph=t=>esc(t).replace(/\[Add:[^\]]*\]/g,m=>`<mark class="ph">${m}</mark>`);
+function aeo(){
+  const groups=[...new Set(D.aeo.map(q=>q.group))];
+  let h=`<div class="card" style="margin-bottom:14px"><h2>How to use these</h2><p class="hint" style="margin:0">AI answer engines quote pages that answer a question in the first one or two sentences, name the brand, and mark the answer up with schema. Each draft below is written that way. Yellow <mark class="ph">[Add: …]</mark> slots are facts only you can supply; the “Check before publishing” note lists what to confirm. Do not publish a draft with a slot unfilled.</p></div>`;
+  groups.forEach(g=>{h+=`<div class="group-h">${esc(g)}</div>`+D.aeo.filter(q=>q.group===g).map(q=>`<details class="q"><summary><span class="t">${esc(q.question)}</span><span class="m">${q.schema?`<span class="pill">${esc(q.schema)}</span>`:''}${q.kw?kwStatus(q.kw.status):''}</span></summary><div class="body">
+    <div class="ans" id="ans-${esc(q.id)}">${ph(q.answer)}</div>
+    <div class="who"><span class="pill">Put on: ${esc(q.page)}</span>${q.keyword?`<span class="pill">Keyword: ${esc(q.keyword)}</span>`:''}</div>
+    ${q.verify?`<div class="note"><b>Check before publishing:</b> ${esc(q.verify)}</div>`:''}
+    <button class="btn" type="button" data-copy="${esc(q.id)}" style="margin-top:6px">Copy answer</button></div></details>`).join('');});
+  return h;
+}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;const q=D.aeo.find(x=>x.id===b.dataset.copy);if(!q)return;
+  const done=()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy answer',1500);};
+  try{navigator.clipboard.writeText(q.answer).then(done,()=>{b.textContent='Copy failed: select the text instead';});}catch(err){b.textContent='Copy failed: select the text instead';}});
+
+/* ---------- AUDIT ---------- */
+function audit(){
+  const a=D.audit;
+  if(!a.available)return `<div class="empty">The audit reads crawled trovelle.in pages. No pages were available in this build (status: ${esc(a.source)}). Check the crawl log.</div>`;
+  const c=a.counts, areas=[...new Set(a.checks.map(x=>x.area))];
+  let h=`<div class="card" style="margin-bottom:14px"><h2>trovelle.in self-audit</h2><p class="hint" style="margin:0">${a.pages_checked} pages read (${esc(M.provenance.trovelle_source)}${a.fetched_at?', '+fmtDT(a.fetched_at):''}). ${audStatus('fail')} ${c.fail} &nbsp; ${audStatus('warn')} ${c.warn} &nbsp; ${audStatus('pass')} ${c.pass} &nbsp; ${audStatus('unknown')} ${c.unknown}. “Unknown” means the check needs data the crawl could not see, not that it passed.</p></div>`;
+  areas.forEach(ar=>{h+=`<div class="group-h">${esc(ar)}</div><div class="card" style="padding:4px 16px">`+a.checks.filter(x=>x.area===ar).map(x=>`<div class="check"><div>${audStatus(x.status)}<div style="margin-top:4px"><span class="pill">${x.impact} impact</span></div></div><div><h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p>${x.fix&&x.status!=='pass'?`<p class="fix"><b>Fix:</b> ${esc(x.fix)}</p>`:''}</div></div>`).join('')+`</div>`;});
+  return h;
+}
+
+/* ---------- METHOD ---------- */
+function method(){
+  return `<div class="card prose"><h2>How this dashboard works</h2>
+  <h3>Where the data comes from</h3>
+  <p><b>Live crawl.</b> A scheduled GitHub Action fetches a short, fixed list of public pages for Trovélle and each competitor (homepage, key collections, a few blog posts), obeying robots.txt, waiting 2 seconds between requests per site, and identifying itself. It reads titles, meta descriptions, headings, navigation, FAQ markup, JSON-LD types and visible text.</p>
+  <p><b>Seed list.</b> The ${S.n_keywords} tracked keywords, their demand and difficulty (1–5), brand fit, and each competitor's starting coverage were set by hand from manual review of competitor sites and search results. They are estimates. When the crawl reads a page, the measured value replaces the seed for Trovélle and can only raise a competitor's score, never lower it. If a competitor blocks the crawler, its seed scores stay and the card shows “Blocked”.</p>
+  <p><b>Your own numbers.</b> Drop a Semrush, Ahrefs, Keyword Planner or Search Console export into <code>data/inputs/metrics.csv</code> (columns <code>keyword, volume, kd</code>) and those terms use real volume and difficulty instead of estimates.</p>
+  <h3>What “uses” means</h3>
+  <p><b>Strong</b> = the phrase is in a page title, H1, meta description or navigation label. <b>Weak</b> = it appears in a sub-heading, FAQ question, product name, or at least ${'two'} times in body text. <b>Gap</b> = not found. Matching ignores case, accents, plurals, “co-ord / coord”, and filler words, so “co-ord sets for women” matches “Co-ord Set”.</p>
+  <h3>Opportunity score (0–100)</h3>
+  <p><code>demand × brand fit × (6 − difficulty) × gap factor × competitor bonus</code>, scaled to 100. Gap factor is 1.0 if Trovélle has no coverage, 0.6 if weak, 0.15 if strong. The bonus adds 8% for each competitor already using the term (capped at five). “Quick win” = score 25+ and fixable on the site (titles, collections, schema). “Content bet” = score 25+ and needs a new post or guide.</p>
+  <h3>Limits to keep in mind</h3>
+  <ul><li>This is not rank tracking. It shows who targets a phrase on their pages, not who ranks for it. For rank data, connect Search Console.</li>
+  <li>Demand and difficulty are judgments until you add a metrics export.</li>
+  <li>The crawl sees HTML as served. Content injected by JavaScript (some review widgets, some menus) may be missed, which can understate a site's coverage.</li>
+  <li>trovelle.com is an unrelated US eyewear store with an almost identical name. Branded search is shared with it, so the entity checks matter.</li>
+  <li>AEO answers are drafts. Facts in yellow slots and the “check before publishing” notes must be confirmed by the team.</li></ul></div>`;
+}
+
+/* mount */
+const R={overview,competitors,opportunities,plan,aeo,audit,method};
+TABS.forEach(([id])=>{$('#p-'+id).innerHTML=R[id]();});
+bindOpp();
+$('#foot').innerHTML=`Built ${esc(M.built_label)} by trovelle-seo ${esc(M.version)}. Crawl data: ${M.crawl_at?fmtDT(M.crawl_at):'none yet (seed list only)'}. <a href="data.json">data.json</a>`;
+go((location.hash||'').slice(1)||'overview',false);
+addEventListener('hashchange',()=>go((location.hash||'').slice(1),false));
+})();
+</script>
+</body>
+</html>
